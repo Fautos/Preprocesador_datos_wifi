@@ -10,7 +10,7 @@ El principal funcionamiento de este programa es convertir un fichero csv en el q
     | .............................. | ...... | ..... | .......... | ....... | ............................. | ............... |
     | Punto X dentro de la muestra Y | IDSS X | MAC X | Potencia X | Fecha X | Etiqueta (latitud-Longitud) X | Identificador X |
     
-En otro archivo csv en el que organicen en función de la muestra, la potencia y la dirección MAC de la siguiente manera:
+En otro archivo csv en el que se organicen en función de la muestra, la potencia y la dirección MAC tal y como se muestra a continuación:
     
     |           |     MAC 1    |     MAC 2    |     MAC 3    | ... |     MAC N    | Etiqueta 1 (opc) | Etiqueta 2 (opc)  |
     | Muestra 1 | Potencia AP1 | Potencia AP2 | Potencia AP3 | ... | Potencia APN | Latitud muetra 1 | Longitud muetra 1 |
@@ -19,6 +19,12 @@ En otro archivo csv en el que organicen en función de la muestra, la potencia y
     | Muestra Y | Potencia APY | Potencia APY | Potencia APY | ... | Potencia APY | Latitud muetra Y | Longitud muetra Y |
 
 
+## Como usarlo
+Para lanzar el programa basta con pegarlo en la ubicación deseada y lanzarlo, por ejemplo con el siguiente comando:
+    
+    python3 Procesador_base_datos.py
+
+## Funcionamiento
 Al lanzar por primera vez el programa se creará un arbol de carpetas en el lugar donde se localice dicho fichero. En las veces sucesivas buscará dicha carpeta, y de no encontrarla la creará de nuevo. En el caso de encontrar otra carpeta con el mismo nombre pero con contenido diferente esta será renombrada como "Database_antigua" para que se pueda conservar su contenido intacto.
 Este arbol se organiza de la siguiente manera:
      
