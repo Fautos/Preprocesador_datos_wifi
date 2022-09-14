@@ -2,14 +2,6 @@
 # coding: utf-8
 
 # # Script para gestionar el procesadoo de la base de datos
-
-# El objetivo es crear un script capaz de gestionar los archivos csv que se coloquen en una carpeta
-
-# ## Librerías
-
-# In[1]:
-
-
 #Para gestionar el directorio
 import os
 import time
@@ -20,38 +12,10 @@ import re
 import numpy as np
 
 
-# ## Creación del espacio de trabajo
-# Esta parte del código se encargará de crear las diferentes carpetas en las que se almacenarán los datos procesados. Para ello lo primero que haremos en verificar si ya existe la configuración adecuada, y de no ser así se creará, indicando al usuario como ha de proceder.
-# La idea es que el arbol de trabajo sea el siguiente:
-# 
-#     |->Database
-#         |->Raw_data
-#             |->Unlisted_data
-#             |->Train
-#             |->Test
-#             |->Val
-#         |->Processed_data
-#             |->Dia
-#                 |->Hora
-#             
-# En la carpeta "Raw_data" es donde irían los .csv que se van a procesar. Dentro de la misma hay varias opciones a la hora de procesar los datos:
-# * Si se añaden csv en las carpetas "Train", "Test" y "Val" esos datos se usarán para dicho proceso.
-# * Si se añaden listas que contengan "listado" en el nombre a alguna de las carpetas los datos de ese conjunto se procesaran siguiendo dicho listado.
-# 
-# Finalmente los datos procesados se pueden recoger en la carpeta "Processed_data". Para evitar que se sobreescriban los datos se crea una carpeta cada vez que se lanza el programa, en la cual se indica el día (carpeta general) y la hora (subcarpeta en la que se guardan los datos procesados).
-# 
-# En la carpeta de datos procesados siempre encontraras uno o varios archivos .csv (dependiendo de cuantos conjuntos vayas a crear y de si quieres las etiquetes juntas o separadas), junto con el listado de los AP's únicos que se ha usado para procesarlos y un .txt con información diversa del proceso.
-
-# In[2]:
-
-
 #Función para crear las carpetas a partir de una lista de direcciones
 def Crea_directorios(lista):
   for direccion in lista:
     os.mkdir(direccion)
-
-
-# In[3]:
 
 
 #Definimos todas las direcciones necesarias.
@@ -112,17 +76,7 @@ input("Cuando tengas todo listo pulsa el botón \033[1m'Enter'\033[0m y proceder
 # Empezamos a contar para saber cuanto tardamos en ejecutar el programa
 tiempo_inicio = time.time()
 
-# ## Obtención de los datos
-# En esta parte del código  trabajaremos en los archivos .csv que se encuentren en la carpeta "Raw_data". La idea es que el código lea todos los archivos que encuentre y los procese, independientemente de la cantidad, por lo que el usuario es libre de meter cuantos archivos quiera.
-
-# ### Carga de datos
-
-# Primero comprobamos que haya algún dato a procesar en alguna de las carpetas, y de no ser así avisamos al usuario para que los meta. 
-# Dejamos listadas las ubicaciones para facilitar su procesado.
-
-# In[4]:
-
-
+# Obtención de los datos
 Lista_procesar=[]
 
 #Unlisted
@@ -186,9 +140,6 @@ assert len(Lista_procesar) != 0, "No se han encontrado datos en ninguna carpeta.
 print("Registro finalizado con éxito. Procedemos a extraer los datos de "+ str(Lista_procesar))
 
 
-# In[5]:
-
-
 #Borramos las variables para que no den problemas en caso de que no existan.
 if("direcciones_Train" in globals()):
   del direcciones_Train
@@ -211,15 +162,7 @@ else:
     print("Si que esta")
 
 
-# ### Función para sacar las matrices
-# 
-# Una vez tenemos listadas las direcciones de todos los archivos que vamos a procesar, creamos una función que tendrá como entrada ese listado y como salida una matriz con todos datos.
-# La variable "secuencia" cuenta con las muestras que tiene cada fichero csv, de forma que acaba siendo una lista donde se guardan todas las secuencias que se han procesado.
-# También en el caso de que exista un fichero "listado" en alguna de las carpetas lo procesará para que se puedan ordenar los datos conforme allí aparezcan.
-
-# In[6]:
-
-
+# Función para sacar las matrices
 def Saca_matrices(direcciones):
     #Almacenaremos los datos en una lista de listas de tamaño variable en función de la cantidad de ficheros que haya
     datos_totales=[]
@@ -264,11 +207,6 @@ def Saca_matrices(direcciones):
     return matriz, secuencias, listado
 
 
-# Y pasamos por la función todas las listas que hayamos creado anteriormente
-
-# In[7]:
-
-
 #Creamos las listas de entrenamiento, testeo y validación
 if("direcciones_Train" in globals()):
     print('\033[1m'+'Set de entrenamiento'+'\033[0m')
@@ -302,20 +240,7 @@ else:
         
 
 
-# ## Procesado de los datos
-# 
-# Esta parte del código se encargará de procesar las matrices calculadas anteriormente para darlas el formato adecuado antes de exportarlas.
-
-# ### Obtención de las listas de AP's
-# 
-# Lo primero será comprobar la existencia de alguna lista a la que aferrarse. En el caso de que exista los datos se acomodarán a ella, de lo contrario habrá distintas maneras de proceder.
-# 
-# Para el caso del entrenamiento, si no hay una lista preestablicida (que es lo esperable) habrá que localizar los diferentes puntos de acceso que aparecen en todos los datos dentro de un conjunto, los cuales pueden no conincidir con los de otros conjuntos (por ejemplo los APs vistos en el entrenamiento pueden ser distintos de los vistos en el testeo).
-# Los APs vistos en el entrenamiento marcaran el orden de la matriz, mientras que los de testeo y validación se tendran que ajustar a dicho orden.
-
-# In[8]:
-
-
+# Procesado de los datos
 #Comprobamos si hay alguna lista y limpiamos las que haya (si tienen indices Latitud o Longitud los eliminamos)
 lista_listas=[
     "listado_base_Train",
@@ -363,17 +288,7 @@ if("matriz_Train" in globals()):
 
 
 
-# ### Funciónes para ordenar los datos
-# Las siguientes funciones sirven para organizar los datos y crear las matrices finales con las que trabajaremos.
-
-# En el caso de la matriz de entrenamiento esta recibe como parámetros:
-# * Identificadores: Una array con las direcciones MAC únicas filtradas anteriormente
-# * Matriz_scan: La matriz en la que aparecen los datos leidos de los csv creada anteriormente
-# * Etiquetas_juntas (opcional): En caso de que este parámetro sea verdadero las etiquetas se incluirán en la matriz final, de lo contrario se crearán dos matrices separadas.
-
-# In[9]:
-
-
+# Funciónes para ordenar los datos
 def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiquetas_juntas=False):
     #En la primera columna de la matriz se almacena el número de escaneo, así que para saber cuantos escaneos hay leemos el valor de la primera columna de la última fila
     numero_scaneos=sum(secuencias)+len(secuencias) #Como empiezan en 0 sumamos 1 por cada secuencia
@@ -417,14 +332,6 @@ def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiqueta
         listado = np.concatenate((listado, ["Latitud","Longitud"]), axis=0)
     
     return (matriz_salida, matriz_etiquetas, listado)
-
-
-# En el caso del testeo y validación existen varias posibilidades:
-# * En caso de que se le introduzca una lista de APs (por ejemplo la del entrenamiento) los datos se acomodarán a la misma, dejando a elección del usuario si borrar los APs que no aparezcan en la lista o si añadirlos al final.
-# * Si no se introduce una lista base se procesará la misma y e acomodarán los datos.
-# En lo que respecta a las etiquetas lo gestionamos al igual que en el entrenamiento
-
-# In[10]:
 
 
 def Organizador_general(matriz_scan, secuencias, identificadores=None,  etiquetas_juntas=False):
@@ -503,10 +410,7 @@ def Organizador_general(matriz_scan, secuencias, identificadores=None,  etiqueta
     return (matriz_salida, matriz_etiquetas, listado)
 
 
-# ### Obtención de las matrices
-
-# In[11]:
-
+# Obtención de las matrices
 
 lista_procesar=[
     "matriz_Train",
@@ -554,22 +458,13 @@ for element in lista_procesar:
         
 
 
-# ## Escritura de los datos procesados
-# 
-# Finalmente, una vez todos los datos han sido procesados los volvemos a meter a un archivo .csv que localizaremos en la carpeta "Processed_data". Dentro de dicha carpeta creamos otra con la fecha actual, sobre la cual crearemos distintas carpetas con el nombre de la hora en la que se ha guardado información.
-
-# In[12]:
-
-
+# Escritura de los datos procesados
 #Finalmente creamos creamos las carpetas donde guardarán los datos
 if(os.path.exists(date_path)!=True):
     os.mkdir(date_path)
     
 #Dentro de dicha carpeta creamos otra con la hora en la cual guardaremos los resultados
 os.mkdir(hour_path)
-
-
-# In[13]:
 
 #Creacion de los indices de las filas
 #print(secuencias_Train)
@@ -645,7 +540,6 @@ for matriz in lista_matrices:
             print(str(matriz) + " guardada en " +file_path)
 
 
-# In[14]:
 #Recuento del tiempo
 tiempo_fin = time.time()
 tiempo_total = tiempo_fin-tiempo_inicio
