@@ -158,6 +158,11 @@ if ("Unlisted_data" not in Lista_procesar):
         path = raw_path + "/" + elemento
         globals()['direcciones_%s' % elemento] =  [path +"/" + files for files in os.listdir(path)]
 
+        #Ordenamos los elementos en orden alfabetico
+        globals()['direcciones_%s' % elemento] = np.unique(globals()['direcciones_%s' % elemento]).tolist()
+        print("Los ficheros del conjunto \033[1m"+ str(elemento) +"\033[0m se han ordenado según su nombre para ser procesados:\n" + str(globals()['direcciones_%s' % elemento]))
+        str_info = str_info + "Los ficheros del conjunto "+ str(elemento) +" se han ordenado según su nombre para ser procesados:\n" + str(globals()['direcciones_%s' % elemento])
+        
 else:
     print("Si que esta")
 
