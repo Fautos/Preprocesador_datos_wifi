@@ -53,6 +53,15 @@ Dependiendo de los datos procesados se obtendrán los siguientes ficheros (donde
 * listado_X: En este fichero se encuentran las direcciones MAC que se han usado para organizar la matriz, por si se quiere reutilizar en futuros pre-procesados.
 * informacio: Este fichero recoge información sobre el proceso. Puede resultar util a la hora de hacer comprobaciones.
 
+## Explicación de las variables
+Como hay varias alternativas a la hora de procesar los datos, se han colocado las variables en la parte de arriba del código para que el usuario pueda configurarlas a su gusto. A continuación encontrarás una descripción en detalle de cada una de ellas:
+
+* **Espera**: Variable booleana para esperar tras la verificación del arbol de trabajo (para que se pueda ingresar los ficheros sin necesidad de reiniciar el programa) o si por el contrario no se quiere hacer la pausa (por motivos de fluidez).
+* **Lista_exclusiones**: Es una lista con los nombres de las carpetas que no se quieren añadir al procesado. Por ejemplo, si dentro de la lista está el nombre "S7" en el caso de encontrar una carpeta así llamada en alguno de los directorios su contenido no se procesará.
+* **max_directorios**: Indica el número máximos de directorios que se deben de tener en cuenta. La principal función de dicha variable es dar una opción de escape a un bucle while. Si hay menos carpetas que las indicadas no pasa nada, pero si hay más llegado al nivel indicado el programa parará (y por lo tanto los ficheros que esten dentro de las carpetas más abajo no se procesarán).
+* **junto_X**: Variable booleana que especifica si quieres obtener las etiquetes (en caso de haberlas) en la misma matriz de salida o si las quieres en un fichero aparte.
+* **borrar_datos_nuevos**: Variable booleana que indica si quieres borrar los datos referentes a AP's solo vistos en los datos de Testeo y/o Validación o si los quieres conservar (en caso afirmativo aparecerán al final de la lista de AP's base).
+
 # Actualizaciones
 ## Actualización 16/09/2022
 En esta actualización se han implementado varias mejoras, solucionado varios problemas y realizado cambios de calidad de vida:
@@ -63,3 +72,4 @@ En esta actualización se han implementado varias mejoras, solucionado varios pr
 * Bugs arreglados:
     * Arreglado un fallo por el que antes los datos no se escribian correctamente cuando se introducían más de 2 ficheros.
     * Arreglado un bug por el cual ciertos archivos no se podía leer (por estar escritos en un formato erróneo) causando que el programa colapsase.
+ 
