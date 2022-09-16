@@ -49,3 +49,14 @@ Dependiendo de los datos procesados se obtendrán los siguientes ficheros (donde
 * matriz_X_etiquetas: En caso de que se indique la separación de las etiquetas, y de haberlas, las mismas se exportarán en otro archivo (por defecto saldra, pero esto se puede cambiar desde el propio código). De lo contrario las etiquetas se posicionarán en las dos últimas columnas de "matriz_X_organizada.
 * listado_X: En este fichero se encuentran las direcciones MAC que se han usado para organizar la matriz, por si se quiere reutilizar en futuros pre-procesados.
 * informacio: Este fichero recoge información sobre el proceso. Puede resultar util a la hora de hacer comprobaciones.
+
+# Actualizaciones
+## Actualización 16/09/2022
+En esta actualización se han implementado varias mejoras, solucionado varios problemas y realizado cambios de calidad de vida:
+* A partir de ahora es posible introducir los archivos .csv directamente desde carpetas.
+* A partir de ahora se obtiene también un fichero aparte con las marcas temporales.
+* Implementada una nueva opción para descartar los datos de AP's en los conjuntos de validación y testeo que no aparezcan en el listado original (o en el listado creado a partir de los datos de entrenamiento). 
+* Ahora las variabes configurables aparecen en la primera línea, haciendolas más accesibles.
+* Bugs arreglados:
+    * Arreglado un fallo por el que antes los datos no se escribian correctamente cuando se introducían más de 2 ficheros.
+    * Arreglado un bug por el cual ciertos archivos no se podía leer (por estar escritos en un formato erróneo) causando que el programa colapsase.
