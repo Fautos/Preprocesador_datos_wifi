@@ -1,15 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Script para gestionar el procesadoo de la base de datos
-
-# El objetivo es crear un script capaz de gestionar los archivos csv que se coloquen en una carpeta
+# En los apartados marcados con (*) se puede leer más información desde el Readme del repositorio de GitHub o desde el archivo Jupyter. Aquí se han acotado para reducir el tamaño del programa (en líneas) 
 
 # ## Librerías
-
-# In[1]:
-
-
 #Para gestionar el directorio
 import os
 import time
@@ -19,40 +13,37 @@ import pandas as pd
 import re
 import numpy as np
 
+# ## Definición de variables (*)
 
-# ## Creación del espacio de trabajo
-# Esta parte del código se encargará de crear las diferentes carpetas en las que se almacenarán los datos procesados. Para ello lo primero que haremos en verificar si ya existe la configuración adecuada, y de no ser así se creará, indicando al usuario como ha de proceder.
-# La idea es que el arbol de trabajo sea el siguiente:
-# 
-#     |->Database
-#         |->Raw_data
-#             |->Unlisted_data
-#             |->Train
-#             |->Test
-#             |->Val
-#         |->Processed_data
-#             |->Dia
-#                 |->Hora
-#             
-# En la carpeta "Raw_data" es donde irían los .csv que se van a procesar. Dentro de la misma hay varias opciones a la hora de procesar los datos:
-# * Si se añaden csv en las carpetas "Train", "Test" y "Val" esos datos se usarán para dicho proceso.
-# * Si se añaden listas que contengan "listado" en el nombre a alguna de las carpetas los datos de ese conjunto se procesaran siguiendo dicho listado.
-# 
-# Finalmente los datos procesados se pueden recoger en la carpeta "Processed_data". Para evitar que se sobreescriban los datos se crea una carpeta cada vez que se lanza el programa, en la cual se indica el día (carpeta general) y la hora (subcarpeta en la que se guardan los datos procesados).
-# 
-# En la carpeta de datos procesados siempre encontraras uno o varios archivos .csv (dependiendo de cuantos conjuntos vayas a crear y de si quieres las etiquetes juntas o separadas), junto con el listado de los AP's únicos que se ha usado para procesarlos y un .txt con información diversa del proceso.
+#Para el inicio
+Espera = False
 
-# In[2]:
+#Para la extracción de ficheros
+#Lista con los nombre de los directorios que se quieran excluir
+Lista_exclusiones=[
+    "S7"
+]
 
+#Número máximo de directorios que puede abrir antes de parar
+max_directorios = 5
+
+#Para la obtención de las matrices
+#Definimos si queremos las etiquetas en la misma matriz que los datos o por separado y si queremos borrar los datos que no aparezcan en la lista
+junto_Train = False
+junto_Test = False
+junto_Val = False
+
+#Definimos si queremos eliminar o conservar los datos que hagan referencia a AP's que solo se encuentren en los ficheros de validación y testeo
+borrar_datos_nuevos_Test = True
+borrar_datos_nuevos_Val = True
+
+
+# ## Creación del espacio de trabajo (*)
 
 #Función para crear las carpetas a partir de una lista de direcciones
 def Crea_directorios(lista):
   for direccion in lista:
     os.mkdir(direccion)
-
-
-# In[3]:
-
 
 #Definimos todas las direcciones necesarias.
 current_path = os.getcwd()
@@ -106,24 +97,18 @@ print("\033[1m[info]\033[0m: Los archivos que queden fuera de alguna de estas ca
 print("\033[1m[importante]\033[0m: Por favor, no introduzca nada en la carpeta 'Unlisted_data'.")
 #print("Pd: Puede hacer ambas cosas a la vez.")
 
-#Creamos una espera por si no se han metido los datos
-input("Cuando tengas todo listo pulsa el botón \033[1m'Enter'\033[0m y procederemos con el procesado de los datos.")
+if(Espera):
+    #Creamos una espera por si no se han metido los datos
+    input("Cuando tengas todo listo pulsa el botón \033[1m'Enter'\033[0m y procederemos con el procesado de los datos.")
 
 # Empezamos a contar para saber cuanto tardamos en ejecutar el programa
 tiempo_inicio = time.time()
 
-# ## Obtención de los datos
-# En esta parte del código  trabajaremos en los archivos .csv que se encuentren en la carpeta "Raw_data". La idea es que el código lea todos los archivos que encuentre y los procese, independientemente de la cantidad, por lo que el usuario es libre de meter cuantos archivos quiera.
 
+# ## Obtención de los datos (*)
 # ### Carga de datos
 
-# Primero comprobamos que haya algún dato a procesar en alguna de las carpetas, y de no ser así avisamos al usuario para que los meta. 
-# Dejamos listadas las ubicaciones para facilitar su procesado.
-
-# In[4]:
-
-
-Lista_procesar=[]
+Lista_procesar = []
 
 #Unlisted
 if(len(os.listdir(raw_unlisted_path))==0):
@@ -185,9 +170,23 @@ else:
 assert len(Lista_procesar) != 0, "No se han encontrado datos en ninguna carpeta. Por favor introduzca algún csv."
 print("Registro finalizado con éxito. Procedemos a extraer los datos de "+ str(Lista_procesar))
 
+#Función para diferenciar los ficheros y carpetas de una lista de direcciones 
+def Encuentra_ficheros(lista_direcciones):
+    #La función ha de generar una lista con las direcciones de los ficheros a apartir de una dirección de un nivel superior
+    Lista_ficheros = []
+    Lista_directorios = []
 
-# In[5]:
+    for direccion in lista_direcciones:
+        #print(direccion)
+    
+        if os.path.isdir(direccion): 
+            Lista_directorios.append(direccion)
+            #print("Encontrado directorio.")
 
+        else:
+            Lista_ficheros.append(direccion)
+    
+    return Lista_ficheros, Lista_directorios
 
 #Borramos las variables para que no den problemas en caso de que no existan.
 if("direcciones_Train" in globals()):
@@ -203,28 +202,43 @@ if("direcciones_Unlisted_data" in globals()):
 if ("Unlisted_data" not in Lista_procesar):
     print("No hay datos sin listar.")
     for elemento in Lista_procesar:
-        #globals()['direcciones_%s' % elemento] = [files for files in os.listdir(raw_path + "/" + elemento)]
+        print("\033[1mCarpeta "+str(elemento)+"\033[0m")
         path = raw_path + "/" + elemento
         globals()['direcciones_%s' % elemento] =  [path +"/" + files for files in os.listdir(path)]
-        
-        #Ordenamos los elementos en orden alfabetico
-        globals()['direcciones_%s' % elemento] = np.unique(globals()['direcciones_%s' % elemento]).tolist()
-        print("Los ficheros del conjunto \033[1m"+ str(elemento) +"\033[0m se han ordenado según su nombre para ser procesados:\n" + str(globals()['direcciones_%s' % elemento]))
-        str_info = str_info + "Los ficheros del conjunto "+ str(elemento) +" se han ordenado según su nombre para ser procesados:\n" + str(globals()['direcciones_%s' % elemento])
 
+        #Filtramos las direcciones entre directorios y ficheros
+        contador = 0
+
+        #Primero buscamos los ficheros desde el nivel superior
+        Lista_ficheros, Lista_directorios = Encuentra_ficheros(globals()['direcciones_%s' % elemento])
+        
+        #En caso de encontrarnos con directorios en los niveles inferiores vamos bajando hasta sacar todos los ficheros
+        while((len(Lista_directorios)!=0) and (contador <= max_directorios)):
+
+            lis_direc=[]
+            lis_fic=[]
+
+            for direc in Lista_directorios:
+                for fichero in os.listdir(direc):
+                    for exclusion in Lista_exclusiones:
+                        if(exclusion not in fichero):
+                            lis_direc.append(direc + "/" + str(fichero))
+
+            lis_fic, Lista_directorios = Encuentra_ficheros(lis_direc)
+            if(len(lis_fic)!=0):
+                Lista_ficheros = Lista_ficheros + lis_fic
+
+            contador = contador +1
+
+        globals()['direcciones_%s' % elemento] = sorted(Lista_ficheros)
+        print("\033[1mFicheros " +str(elemento)+ ":\033[0m " + str(globals()['direcciones_%s' % elemento]))
+        print("\033[1mDirectorios " +str(elemento)+ ":\033[0m " + str(Lista_directorios))
+        
 else:
     print("Si que esta")
 
 
-# ### Función para sacar las matrices
-# 
-# Una vez tenemos listadas las direcciones de todos los archivos que vamos a procesar, creamos una función que tendrá como entrada ese listado y como salida una matriz con todos datos.
-# La variable "secuencia" cuenta con las muestras que tiene cada fichero csv, de forma que acaba siendo una lista donde se guardan todas las secuencias que se han procesado.
-# También en el caso de que exista un fichero "listado" en alguna de las carpetas lo procesará para que se puedan ordenar los datos conforme allí aparezcan.
-
-# In[6]:
-
-
+# ### Función para sacar las matrices (*)
 def Saca_matrices(direcciones):
     #Almacenaremos los datos en una lista de listas de tamaño variable en función de la cantidad de ficheros que haya
     datos_totales=[]
@@ -240,7 +254,8 @@ def Saca_matrices(direcciones):
             print("[Importante]: Se ha encontrado una lista base")
             globals()["str_info"]=globals()["str_info"] + "[Importante]: Se ha encontrado una lista base\n"
         else:
-           datos_totales.append((pd.read_csv(direccion, header = None)).to_numpy().tolist())
+            print(direccion)
+            datos_totales.append((pd.read_csv(direccion, on_bad_lines='skip', header = None)).to_numpy().tolist())
     
     #Mostramos la cantidad de datos que se han leido para asegurarnos más tarde de que no se pierda ninguno
     print("En total se han descargado "+ str(len(datos_totales)) +" ficheros, los cuales tienen las siguientes dimensiones:")
@@ -267,12 +282,6 @@ def Saca_matrices(direcciones):
     matriz = np.array(flat_list)
     
     return matriz, secuencias, listado
-
-
-# Y pasamos por la función todas las listas que hayamos creado anteriormente
-
-# In[7]:
-
 
 #Creamos las listas de entrenamiento, testeo y validación
 if("direcciones_Train" in globals()):
@@ -307,20 +316,7 @@ else:
         
 
 
-# ## Procesado de los datos
-# 
-# Esta parte del código se encargará de procesar las matrices calculadas anteriormente para darlas el formato adecuado antes de exportarlas.
-
-# ### Obtención de las listas de AP's
-# 
-# Lo primero será comprobar la existencia de alguna lista a la que aferrarse. En el caso de que exista los datos se acomodarán a ella, de lo contrario habrá distintas maneras de proceder.
-# 
-# Para el caso del entrenamiento, si no hay una lista preestablicida (que es lo esperable) habrá que localizar los diferentes puntos de acceso que aparecen en todos los datos dentro de un conjunto, los cuales pueden no conincidir con los de otros conjuntos (por ejemplo los APs vistos en el entrenamiento pueden ser distintos de los vistos en el testeo).
-# Los APs vistos en el entrenamiento marcaran el orden de la matriz, mientras que los de testeo y validación se tendran que ajustar a dicho orden.
-
-# In[8]:
-
-
+# ## Procesado de los datos(*)
 #Comprobamos si hay alguna lista y limpiamos las que haya (si tienen indices Latitud o Longitud los eliminamos)
 lista_listas=[
     "listado_base_Train",
@@ -367,18 +363,7 @@ if("matriz_Train" in globals()):
         str_info = str_info + "Hemos procesado los datos de entrenamiento. En total hemos detectado " +str(len(Aps_unicos))+" direcciones MAC únicas." + "Aquí te muestro las 10 primeras:\n"+ str(Aps_unicos[0:10]) + "\n"
 
 
-
-# ### Funciónes para ordenar los datos
-# Las siguientes funciones sirven para organizar los datos y crear las matrices finales con las que trabajaremos.
-
-# En el caso de la matriz de entrenamiento esta recibe como parámetros:
-# * Identificadores: Una array con las direcciones MAC únicas filtradas anteriormente
-# * Matriz_scan: La matriz en la que aparecen los datos leidos de los csv creada anteriormente
-# * Etiquetas_juntas (opcional): En caso de que este parámetro sea verdadero las etiquetas se incluirán en la matriz final, de lo contrario se crearán dos matrices separadas.
-
-# In[9]:
-
-
+# ### Funciónes para ordenar los datos (*)
 def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiquetas_juntas=False):
     #En la primera columna de la matriz se almacena el número de escaneo, así que para saber cuantos escaneos hay leemos el valor de la primera columna de la última fila
     numero_scaneos=sum(secuencias)+len(secuencias) #Como empiezan en 0 sumamos 1 por cada secuencia
@@ -389,6 +374,8 @@ def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiqueta
     matriz_salida=np.ones((numero_scaneos,len(identificadores)))*(-200)
     #Definimos el tamaño de la matriz de etiquetas
     matriz_etiquetas=np.zeros((numero_scaneos,2))
+    #Definimos el tamaño de la matriz de tiempos. Como son strings hay que definir el tamaño de cada item
+    matriz_time=np.chararray((numero_scaneos,1),itemsize = 27, unicode = True)
     
     set_datos = 0
     offset = 0
@@ -400,7 +387,7 @@ def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiqueta
         assert element[2] in identificadores.tolist(), "La dirección MAC "+str(element[2])+" del elemento "+str(ciclo)+" no se había listado."
         
         if((int(element[0])!=int(muestra_anterior)) & (int(muestra_anterior) ==secuencias[set_datos])):
-            offset = secuencias[set_datos] +1
+            offset = offset + secuencias[set_datos] +1
             set_datos=set_datos+1
             
         
@@ -410,29 +397,25 @@ def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiqueta
         
         matriz_salida[fila,int(columna[0])] = element[3]
         matriz_etiquetas[fila] = [float(s) for s in re.findall(r'-?\d+\.?\d*', str(element[5]))]
+
+        #Guardamos las marcas de tiempo
+        matriz_time[fila] = element[4]
+        #print(matriz_time[fila], type(element[4]), len(element[4]))
         
         muestra_anterior = element[0]
         #print("Fila: "+str(fila)+" columna: "+str(columna))
     
     listado = identificadores
+        
     #Si está indicado que se añadan las etiquetas
     if(etiquetas_juntas == True):
         matriz_salida = np.concatenate((matriz_salida, matriz_etiquetas), axis=1)
         matriz_etiquetas = None
         listado = np.concatenate((listado, ["Latitud","Longitud"]), axis=0)
     
-    return (matriz_salida, matriz_etiquetas, listado)
+    return (matriz_salida, matriz_etiquetas, matriz_time, listado)
 
-
-# En el caso del testeo y validación existen varias posibilidades:
-# * En caso de que se le introduzca una lista de APs (por ejemplo la del entrenamiento) los datos se acomodarán a la misma, dejando a elección del usuario si borrar los APs que no aparezcan en la lista o si añadirlos al final.
-# * Si no se introduce una lista base se procesará la misma y e acomodarán los datos.
-# En lo que respecta a las etiquetas lo gestionamos al igual que en el entrenamiento
-
-# In[10]:
-
-
-def Organizador_general(matriz_scan, secuencias, identificadores=None,  etiquetas_juntas=False):
+def Organizador_general(matriz_scan, secuencias, identificadores=None, borrar_nuevos=False, etiquetas_juntas=False):
     #En la primera columna de la matriz se almacena el número de escaneo, así que para saber cuantos escaneos hay leemos el valor de la primera columna de la última fila
     numero_scaneos=sum(secuencias)+len(secuencias) #Como empiezan en 0 sumamos 1 por cada secuencia
     print("Localizados "+str(numero_scaneos)+" escaneos distintos")
@@ -448,20 +431,21 @@ def Organizador_general(matriz_scan, secuencias, identificadores=None,  etiqueta
         lista_Aps = identificadores
         print("La lista con los APs original era de tamaño "+str(len(lista_Aps)))
         
-        #Comprobamos si la direccion MAC pertenece al listado, y de no ser así la añadimos al final
-        for element in matriz_scan:
-            if(element[2] not in lista_Aps.tolist()):
-                lista_Aps = np.append(lista_Aps, element[2])
-                cuenta=cuenta+1
-                #print("La señal: "+str(element)+" no pertenece al listado")
-        print("Tras revisar los datos de entrada se han encontrado "+str(cuenta)+" APs nuevos, por lo que finalmente se han listado "+str(len(lista_Aps))+" Aps.")
-        globals()["str_info"]=globals()["str_info"] + "[Importante]: La lista con los APs original era de tamaño "+str(len(identificadores))+ ". Tras revisar los datos de entrada se han encontrado "+str(cuenta)+" APs nuevos, por lo que finalmente se han listado "+str(len(lista_Aps))+" Aps.\n"
-        
-        #Definimos el tamaño de la matriz con los APs
-        matriz_salida=np.ones((numero_scaneos,len(lista_Aps)))*(-200)
-        #Si hay etiquetas definimos el tamaño de la matriz de etiquetas
-        matriz_etiquetas=np.zeros((numero_scaneos,2))
+        if(borrar_nuevos == False):
+            #Comprobamos si la direccion MAC pertenece al listado, y de no ser así la añadimos al final
+            for element in matriz_scan:
+                if(element[2] not in lista_Aps.tolist()):
+                    lista_Aps = np.append(lista_Aps, element[2])
+                    cuenta=cuenta+1
+                    #print("La señal: "+str(element)+" no pertenece al listado")
+            print("Tras revisar los datos de entrada se han encontrado "+str(cuenta)+" APs nuevos, por lo que finalmente se han listado "+str(len(lista_Aps))+" Aps.")
+            globals()["str_info"]=globals()["str_info"] + "[Importante]: La lista con los APs original era de tamaño "+str(len(identificadores))+ ". Tras revisar los datos de entrada se han encontrado "+str(cuenta)+" APs nuevos, por lo que finalmente se han listado "+str(len(lista_Aps))+" Aps.\n"
 
+        else:
+            print("[Importante]: Seleccionada la opción para omitir los APs que no aparezcan en la lista original (ya sea la introducida manualmente o la generada en el entrenamiento)")
+            globals()["str_info"]=globals()["str_info"] + "[Importante]: Seleccionada la opción para omitir los APs que no aparezcan en la lista original (ya sea la introducida manualmente o la generada en el entrenamiento)"
+            
+    
     #Si no se introduce una lista para organizar los AP creamos una propia
     else:
         #Creamos la lista de los diferentes APs
@@ -471,31 +455,53 @@ def Organizador_general(matriz_scan, secuencias, identificadores=None,  etiqueta
         print("No se ha introducido ninguna lista, por lo que se procede a organizar los APs conforme aparecen en los csv.\nEn total se han encontrado "+ str(len(Aps_unicos))+" direcciones MAC diferentes. Aquí te muestro las 10 primeras:\n"+ str(Aps_unicos[0:10]) )
         globals()["str_info"]=globals()["str_info"] + "No se ha introducido ninguna lista, por lo que se procede a organizar los APs conforme aparecen en los csv.\nEn total se han encontrado "+ str(len(Aps_unicos))+" direcciones MAC diferentes. Aquí te muestro las 10 primeras:\n"+ str(Aps_unicos[0:10])+"\n"
         
-        #Definimos el tamaño de la matriz con los APs
-        matriz_salida=np.ones((numero_scaneos,len(lista_Aps)))*(-200)
-        #Definimos el tamaño de la matriz de etiquetas
-        matriz_etiquetas=np.zeros((numero_scaneos,2))
+    #Definimos el tamaño de la matriz con los APs
+    matriz_salida=np.ones((numero_scaneos,len(lista_Aps)))*(-200)
+    #Definimos el tamaño de la matriz de etiquetas
+    matriz_etiquetas=np.zeros((numero_scaneos,2))
+    #Definimos el tamaño de la matriz de tiempos
+    matriz_time=np.chararray((numero_scaneos,1),itemsize = 27, unicode = True)
         
     #Colocamos los datos de forma ordenada según aparezcan en la lista de identificadores
     for ciclo, element in enumerate(matriz_scan):
-        #Nos aseguramos que la dirección MAC este en la lista, si no algo ha fallado
-        assert element[2] in lista_Aps.tolist(), "La dirección MAC "+str(element[2])+" del elemento "+str(ciclo)+" no se había listado."
+        
+        #Si no borras los APs fuera de la lista los pones al final según vayan apareciendo
+        if(borrar_nuevos == False):
+            #Nos aseguramos que la dirección MAC este en la lista, si no algo ha fallado
+            assert element[2] in lista_Aps.tolist(), "La dirección MAC "+str(element[2])+" del elemento "+str(ciclo)+" no se había listado."
 
-        if((int(element[0])!=int(muestra_anterior)) & (int(muestra_anterior) ==secuencias[set_datos])):
-            offset = secuencias[set_datos] +1
-            set_datos=set_datos+1
+            if((int(element[0])!=int(muestra_anterior)) & (int(muestra_anterior) ==secuencias[set_datos])):
+                offset = offset + secuencias[set_datos] +1
+                set_datos=set_datos+1
 
-        fila = offset + int(element[0])
-        #print(fila, offset, int(element[0]),secuencias[set_datos])
-        columna = np.where(lista_Aps == element[2])
-        #print(columna[0], element[2])
-        matriz_salida[fila,int(columna[0])] = element[3]
+            fila = offset + int(element[0])
+            #print(fila, offset, int(element[0]),secuencias[set_datos])
+            columna = np.where(lista_Aps == element[2])
+            #print(columna[0], element[2])
+            matriz_salida[fila,int(columna[0])] = element[3]
 
+        #Si quieres borrar los datos cuando aparezca un AP que no está en la lista no lo añades 
+        else:
+            if((int(element[0])!=int(muestra_anterior)) & (int(muestra_anterior) ==secuencias[set_datos])):
+                offset = offset + secuencias[set_datos] +1
+                set_datos=set_datos+1
+
+            fila = offset + int(element[0])
+            #print(fila, offset, int(element[0]),secuencias[set_datos])
+            columna = np.where(lista_Aps == element[2])
+            #Si no ha encontrado el AP en la lista no lo añadimos
+            if (len(columna[0]) != 0):
+                #print(columna[0], element[2])
+                matriz_salida[fila,int(columna[0])] = element[3]
+        
+        #Guardamos las marcas de tiempo
+        matriz_time[int(element[0])] = element[4]
+            
         #Si hay etiquetas
         if(len(element) >= 5):
             if(element[5][2]=="."):
                 matriz_etiquetas[int(element[0])] = [float(s) for s in re.findall(r'-?\d+\.?\d*', str(element[5]))]
-                hay_etiquetas = True       
+                hay_etiquetas = True
 
     #Si está indicado que se añadan las etiquetas
     if(etiquetas_juntas == True & ("hay_etiquetas" in locals())):
@@ -505,24 +511,14 @@ def Organizador_general(matriz_scan, secuencias, identificadores=None,  etiqueta
     #Devolvemos el listado
     listado = lista_Aps
     
-    return (matriz_salida, matriz_etiquetas, listado)
-
+    return (matriz_salida, matriz_etiquetas, matriz_time, listado)
 
 # ### Obtención de las matrices
-
-# In[11]:
-
-
 lista_procesar=[
     "matriz_Train",
     "matriz_Test",
     "matriz_Val"
 ]
-
-#Definimos si queremos las etiquetas en la misma matriz que los datos o por separado
-junto_Train = False
-junto_Test = False
-junto_Val = False
 
 #Vamos procesando las matrices de una en una
 for element in lista_procesar:
@@ -532,7 +528,7 @@ for element in lista_procesar:
         
         #Si se trata del conjunto de entrenamiento sabemos que siempre tendremos una lista
         if("Train" in element):
-            globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["listado_"+'%s'%element[7:]] = Organizador_entrenamiento(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], globals()["listado_base_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
+            globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_entrenamiento(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], globals()["listado_base_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
         
         #Si es el conjunto de testeo o validacion puede haber varios escenarios
         else:
@@ -540,44 +536,33 @@ for element in lista_procesar:
             if("listado_base_"+ str(element[7:]) in globals()):
                 print("Matriz obtenida a partir de una lista base.")
                 str_info = str_info + "Matriz obtenida a partir de una lista base.\n"
-                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], globals()["listado_base_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
+                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], globals()["listado_base_"+'%s'%element[7:]], borrar_nuevos = globals()["borrar_datos_nuevos_" +'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
             
             #Si no tenemos lista base pero tenemos datos de entrenamiento lo lógico será que organizemos los datos siguiendo dicha lista    
             elif("matriz_Train" in globals()):
                 print("Matriz obtenida a partir de los datos de entrenamiento. Los AP's específicos de esta parte se encuentran al final")
                 str_info = str_info + "Matriz obtenida a partir de los datos de entrenamiento. Los AP's específicos de esta parte se encuentran al final.\n"
-                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], listado_base_Train, etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
+                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], listado_base_Train, borrar_nuevos = globals()["borrar_datos_nuevos_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
             
             #Si no estamos en ninguno de los casos anteriores no indicamos ningún orden
             else:
                 print("Matriz obtenida a partir de los datos crudos sin ninguna referencia.")
                 str_info = str_info + "Matriz obtenida a partir de los datos crudos sin ninguna referencia.\n"
-                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
+                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
         
         print("Resultado de tamaño "+str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[0])+ "x" +str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[1])+".\n Aquí un ejemplo de las primeras 10 filas y columnas:\n"+ str(globals()["matriz_"+'%s'%element[7:]+"_organizada"][:10,:10]))
         str_info = str_info + "Resultado de tamaño "+str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[0])+ "x" +str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[1])+".\n Aquí un ejemplo de las primeras 10 filas y columnas:\n"+ str(globals()["matriz_"+'%s'%element[7:]+"_organizada"][:10,:10]) + "\n"
         
 
 
-# ## Escritura de los datos procesados
-# 
-# Finalmente, una vez todos los datos han sido procesados los volvemos a meter a un archivo .csv que localizaremos en la carpeta "Processed_data". Dentro de dicha carpeta creamos otra con la fecha actual, sobre la cual crearemos distintas carpetas con el nombre de la hora en la que se ha guardado información.
-
-# In[12]:
-
-
-#Finalmente creamos creamos las carpetas donde guardarán los datos
+# ## Escritura de los datos procesados(*)
 if(os.path.exists(date_path)!=True):
     os.mkdir(date_path)
     
 #Dentro de dicha carpeta creamos otra con la hora en la cual guardaremos los resultados
 os.mkdir(hour_path)
 
-
-# In[13]:
-
 #Creacion de los indices de las filas
-#print(secuencias_Train)
 lista_indices=[
     "index_Train",
     "index_Test",
@@ -593,19 +578,17 @@ for indice in lista_indices:
         for secuencia in globals()["secuencias_"+indice[6:]]:
             globals()["index_"+str(indice[6:])] = globals()["index_"+str(indice[6:])] + list(range(secuencia+1))
 
-    
-#print(len(index_Train), index_Train)
-#print(len(index_Test), index_Test)
-
-
 #Pasamos cada matriz a csv y las guardamos en la carpeta.
 lista_matrices =[
     "matriz_Train_organizada",
     "matriz_Train_etiquetas",
+    "matriz_Train_timestamp",
     "matriz_Test_organizada",
     "matriz_Test_etiquetas",
+    "matriz_Test_timestamp",
     "matriz_Val_organizada",
     "matriz_Val_etiquetas",
+    "matriz_Val_timestamp",
     "listado_Train",
     "listado_Test",
     "listado_Val"
@@ -619,14 +602,18 @@ for matriz in lista_matrices:
             file_path = hour_path + "/" + matriz + ".csv"
             
             if(matriz[:7] == "listado"):
-                #index = globals()["index_"+matriz[8:]]
-                #print(index)
                 (pd.DataFrame(globals()['%s' % matriz])).to_csv(file_path, index=False, header=False)
             
             elif(matriz[-16:]=="Train_organizada"):
                 (pd.DataFrame(globals()['%s' % matriz], index = index_Train, columns= listado_Train)).to_csv(file_path)
             
-            elif("etiquetas" in matriz):
+            elif(("etiquetas" in matriz) or ("timestamp" in matriz)):
+                
+                if("etiquetas" in matriz):
+                    col = ["Latitud", "Longitud"]
+                elif("timestamp" in matriz):
+                    col = ["Marca de tiempo"]
+                    
                 if ("Train" in matriz):
                     ind = index_Train
                 elif("Test" in matriz):
@@ -635,8 +622,9 @@ for matriz in lista_matrices:
                     ind = index_Val
                 else:
                     ind=False
-                (pd.DataFrame(globals()['%s' % matriz],index = ind, columns = ["Latitud", "Longitud"])).to_csv(file_path)
-     
+                
+                (pd.DataFrame(globals()['%s' % matriz],index = ind, columns = col)).to_csv(file_path)
+            
             elif("Test_organizada" in matriz):
                 (pd.DataFrame(globals()['%s' % matriz], index = index_Test, columns= listado_Test)).to_csv(file_path)
             
@@ -649,8 +637,6 @@ for matriz in lista_matrices:
             #(pd.DataFrame(globals()['%s' % matriz])).to_csv(file_path, index=False)
             print(str(matriz) + " guardada en " +file_path)
 
-
-# In[14]:
 #Recuento del tiempo
 tiempo_fin = time.time()
 tiempo_total = tiempo_fin-tiempo_inicio
@@ -665,7 +651,6 @@ segundos =int(segundos)
 
 print("\u23F3%s:%s:%s" % (horas,minutos,segundos))
 str_info = str_info + "\u23F3 En total el programa ha tardado " + str(horas) +":"+str(minutos)+":"+str(segundos)+".\n" 
-
 
 #Escribimos el .txt
 informacion = open(hour_path + "/informacion.txt", "w")
