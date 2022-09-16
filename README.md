@@ -39,7 +39,9 @@ Este arbol se organiza de la siguiente manera:
                  |->Hora
 
 En la carpeta "Raw_data" se introducirán los archivos csv que se quieran procesar. En la carpeta "Processed_data" se guardarán los archivos una vez procesados.
+
 Dentro de la carpeta "Raw_data" se han de colocar los archivos en las carpetas correspondientes, los que queden fuera de ellas no seran procesados. Si se meten archivos en la carpeta "Train" estos serán utilizados para procesar el conjunto de entrenamiento, de igual manera si se meten en la carpeta "Tes" o "Val" se utilizarán para procesar los respectivos conjuntos.
+Los datos se pueden introducir como .csv de manera individual o dentro de carpetas (o ambos a la vez). En caso de introducirlos como csv sueltos se ordenaran alfabéticamente, en caso de meter carpetas de por medio estas entrarán dentro de dicho orden (mirar el archivo "informacion.txt una vez finalice el programa).
 Además de los archivos con los datos de las señales wifi se puede introducir una lista de direcciones MAC (nombrar como "listado") la cual servirá de referencia a la hora de ordenar los datos. Si no se introduce dicha lista los datos se ordenaran en orden creciente según su dirección MAC. Si se introduce dicha lista y entre los datos se encuentran direcciones MAC que no corresponden con ninguna de ellas estas se ubicarán al final.
 En el caso de que haya datos en la carpeta de entrenamiento estos servirán de base para ordenar los datos de testeo y validación.
 
@@ -47,6 +49,7 @@ Finalmente en la carpeta "Processed_data" se guardarán todos los archivos extra
 Dependiendo de los datos procesados se obtendrán los siguientes ficheros (donde X corresponde con "Train", "Test" o "Val"):
 * matriz_X_organizada: Este archivo contiene la matriz con los AP´s organizados tal y como se indica arriba.
 * matriz_X_etiquetas: En caso de que se indique la separación de las etiquetas, y de haberlas, las mismas se exportarán en otro archivo (por defecto saldra, pero esto se puede cambiar desde el propio código). De lo contrario las etiquetas se posicionarán en las dos últimas columnas de "matriz_X_organizada.
+* matriz_X_timestamp: Este archivo contiene las marcas temporales de las muestras, ordenadas de la misma forma que la matriz organizada.
 * listado_X: En este fichero se encuentran las direcciones MAC que se han usado para organizar la matriz, por si se quiere reutilizar en futuros pre-procesados.
 * informacio: Este fichero recoge información sobre el proceso. Puede resultar util a la hora de hacer comprobaciones.
 
