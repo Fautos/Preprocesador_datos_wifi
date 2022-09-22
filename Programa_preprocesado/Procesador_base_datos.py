@@ -50,7 +50,6 @@ current_path = os.getcwd()
 external_path = current_path + "/Database"
 
 raw_path = external_path + "/Raw_data"
-raw_unlisted_path = raw_path + "/Unlisted_data"
 raw_train_path = raw_path + "/Train"
 raw_test_path = raw_path + "/Test"
 raw_val_path = raw_path + "/Val"
@@ -65,13 +64,13 @@ hour_path = date_path + "/" + str_hour
 #Para la informacion
 str_info = ("Información sobre el procesado de datos ejecutado el día " + str(str_date) + " a las " +str(str_hour) +".\n")
 
-lista_direcciones=[external_path,raw_path,raw_unlisted_path,raw_train_path,raw_test_path,raw_val_path,processed_path]
+lista_direcciones=[external_path,raw_path,raw_train_path,raw_test_path,raw_val_path,processed_path]
 
 #Primero comprobamos si existe la carpeta adecuada. 
 if(os.path.exists(external_path)):
     print("Encontrada la carpeta 'Database'. Procedemos a verificar que es la adecuada.")
     if(os.path.exists(raw_path) & os.path.exists(processed_path)):
-        if(os.path.exists(raw_unlisted_path) & os.path.exists(raw_train_path) & os.path.exists(raw_test_path) & os.path.exists(raw_val_path)):
+        if(os.path.exists(raw_train_path) & os.path.exists(raw_test_path) & os.path.exists(raw_val_path)):
             print('\033[1mCarpeta identificada con éxito.\033[0m')
         else:
             print("Parece que hay un error. El arbol de trabajo es incorrecto, lo cual podría indicar que la carpeta 'Database' fue creada con otro fin. Procedo a cambiarla el nombre a 'Database_antigua' y creo un nuevo directorio con la configuración adecuada.")
@@ -94,8 +93,6 @@ print("Por ejemplo, si ingresa 2 archivos en la carpeta 'Train' ambos se procesa
 print("\033[1m[info]\033[0m: También puede meter un listado base con los AP's conforme los quieras colocar. Los datos se procesaran teniendo en cuenta esa lista.")
 print("\033[1m[importante]\033[0m: Si quieres meter un listado en alguna carpeta asegurate de que este contenga el nombre 'listado'.")
 print("\033[1m[info]\033[0m: Los archivos que queden fuera de alguna de estas carpetas no seran procesados.")
-print("\033[1m[importante]\033[0m: Por favor, no introduzca nada en la carpeta 'Unlisted_data'.")
-#print("Pd: Puede hacer ambas cosas a la vez.")
 
 if(Espera):
     #Creamos una espera por si no se han metido los datos
@@ -107,68 +104,6 @@ tiempo_inicio = time.time()
 
 # ## Obtención de los datos (*)
 # ### Carga de datos
-
-Lista_procesar = []
-
-#Unlisted
-if(len(os.listdir(raw_unlisted_path))==0):
-    print("La carpeta '\033[1mUnlisted_data\033[0m' esta vacia.")
-else:
-    print("Se han encontrado los siguientes archivos en la carpeta '\033[1mUnlisted_data\033[0m':")
-    for file in os.listdir(raw_unlisted_path):
-        print(file)
-    print("Ya ha sido listado." if len(os.listdir(raw_unlisted_path))==1 else "Ya han sido listados.")    
-    Lista_procesar.append("Unlisted_data")
-
-#Train
-if(len(os.listdir(raw_train_path))==0):
-    print("La carpeta '\033[1mTrain\033[0m' esta vacia.")
-else:
-    print("Se han encontrado los siguientes archivos en la carpeta '\033[1mTrain\033[0m':")
-    
-    str_info = str_info +"Se han extraido datos de los siguientes archivos localizados en la carpeta 'Train':\n"   
-    
-    for file in os.listdir(raw_train_path):
-        print("\t \u23FA"+str(file))
-        str_info = str_info + "\t \u23FA"+ str(file) +"\n"
-    
-    print("Ya ha sido listado." if len(os.listdir(raw_train_path))==1 else "Ya han sido listados.")    
-    Lista_procesar.append("Train")
-    
-#Test
-if(len(os.listdir(raw_test_path))==0):
-    print("La carpeta '\033[1mTest\033[0m' esta vacia.")
-else:
-    print("Se han encontrado los siguientes archivos en la carpeta '\033[1mTest\033[0m':")
-    
-    str_info = str_info +"Se han extraido datos de los siguientes archivos localizados en la carpeta 'Test':\n"
-    
-    for file in os.listdir(raw_test_path):
-        print("\t \u23FA"+str(file))
-        str_info = str_info + "\t \u23FA"+ str(file) +"\n"
-        
-    print("Ya ha sido listado." if len(os.listdir(raw_test_path))==1 else "Ya han sido listados.")    
-    Lista_procesar.append("Test")
-
-#Val    
-if(len(os.listdir(raw_val_path))==0):
-    print("La carpeta '\033[1mVal\033[0m' esta vacia.")    
-else:
-    print("Se han encontrado los siguientes archivos en la carpeta '\033[1mVal\033[0m':")
-    
-    str_info = str_info +"Se han extraido datos de los siguientes archivos localizados en la carpeta 'Val':\n"
-    
-    
-    for file in os.listdir(raw_val_path):
-        print("\t \u23FA"+str(file))
-        str_info = str_info + "\t \u23FA"+ str(file) +"\n"
-        
-    print("Ya ha sido listado." if len(os.listdir(raw_val_path))==1 else "Ya han sido listados.")    
-    Lista_procesar.append("Val")
-
-#Verificamos que al menos una de las carpetas este vacia, si no avisamos al usuario para que meta los datos
-assert len(Lista_procesar) != 0, "No se han encontrado datos en ninguna carpeta. Por favor introduzca algún csv."
-print("Registro finalizado con éxito. Procedemos a extraer los datos de "+ str(Lista_procesar))
 
 #Función para diferenciar los ficheros y carpetas de una lista de direcciones 
 def Encuentra_ficheros(lista_direcciones):
@@ -188,55 +123,91 @@ def Encuentra_ficheros(lista_direcciones):
     
     return Lista_ficheros, Lista_directorios
 
-#Borramos las variables para que no den problemas en caso de que no existan.
-if("direcciones_Train" in globals()):
-  del direcciones_Train
-if("direcciones_Test" in globals()):
-  del direcciones_Test
-if("direcciones_Val" in globals()):
-  del direcciones_Val
-if("direcciones_Unlisted_data" in globals()):
-  del direcciones_Unlisted_data
+Lista_raw_path=[
+    "raw_train_path",
+    "raw_test_path",
+    "raw_val_path"
+]
 
-#Si no hay nada en "unlisted_data" podemos extraer los datos libremente
-if ("Unlisted_data" not in Lista_procesar):
-    print("No hay datos sin listar.")
-    for elemento in Lista_procesar:
-        print("\033[1mCarpeta "+str(elemento)+"\033[0m")
-        path = raw_path + "/" + elemento
-        globals()['direcciones_%s' % elemento] =  [path +"/" + files for files in os.listdir(path)]
+str_info = str_info + "\n\u25BA Registro de ficheros \u25C4\n"
 
-        #Filtramos las direcciones entre directorios y ficheros
-        contador = 0
-
-        #Primero buscamos los ficheros desde el nivel superior
-        Lista_ficheros, Lista_directorios = Encuentra_ficheros(globals()['direcciones_%s' % elemento])
+#Recorremos la lista de direcciones 
+for path in Lista_raw_path:
+    #Guardamos el nombre del conjunto (Train, Test, etc)
+    conjunto =  path[4].upper() + path[5:-5]
+    
+    #Si está vacio no hacemos nada, pero llevamos la cuenta para asegurar de que al menos una carpeta contenga algo
+    if(len(os.listdir(globals()["%s" % path]))==0):
+        print("La carpeta '\033[1m"+str(conjunto)+"\033[0m' esta vacia.")
         
-        #En caso de encontrarnos con directorios en los niveles inferiores vamos bajando hasta sacar todos los ficheros
-        while((len(Lista_directorios)!=0) and (contador <= max_directorios)):
-
-            lis_direc=[]
-            lis_fic=[]
-
-            for direc in Lista_directorios:
-                for fichero in os.listdir(direc):
-                    for exclusion in Lista_exclusiones:
-                        if(exclusion not in fichero):
-                            lis_direc.append(direc + "/" + str(fichero))
-
-            lis_fic, Lista_directorios = Encuentra_ficheros(lis_direc)
-            if(len(lis_fic)!=0):
-                Lista_ficheros = Lista_ficheros + lis_fic
-
-            contador = contador +1
-
-        globals()['direcciones_%s' % elemento] = sorted(Lista_ficheros)
-        print("\033[1mFicheros " +str(elemento)+ ":\033[0m " + str(globals()['direcciones_%s' % elemento]))
-        print("\033[1mDirectorios " +str(elemento)+ ":\033[0m " + str(Lista_directorios))
+    #Si tiene algo en su interior analizamos que clase de elemento es
+    else:
+        print("Se han encontrado los siguientes archivos en la carpeta '\033[1m"+str(conjunto)+"\033[0m':")
+        str_info = str_info +"Se han extraido datos de los siguientes archivos localizados en la carpeta "+str(conjunto)+":\n"
         
-else:
-    print("Si que esta")
+        #Inicializamos la matriz donde almacenaremos las direcciones de los archivos
+        globals()['direcciones_%s' % conjunto]=[]
+        
+        for elemento in os.listdir(globals()["%s" % path]):
+            
+            #Nos aseguramos que el elemento no pertenezca a la lista de exclusiones
+            if(elemento not in Lista_exclusiones):
+                path_elemento = globals()["%s" % path] + "/" + elemento
 
+                #Si el elemento es un fichero
+                if os.path.isdir(path_elemento)== False:
+                    globals()['direcciones_%s' % conjunto] += [path_elemento]
+
+                    print("\t \u23FADocumento: " +str(elemento))
+                    str_info = str_info + "\t \u23FADocumento: " +str(elemento) +"\n"
+
+                else:
+                    #Primero buscamos los ficheros desde el nivel superior
+                    Lista_superior = [path_elemento +"/" + files for files in os.listdir(path_elemento)]
+                    Lista_ficheros, Lista_directorios = Encuentra_ficheros(Lista_superior)
+  
+                    print("\t \u23FACarpeta: " +str(elemento) +" formada por "+str(len(Lista_ficheros))+" ficheros y "+str(len(Lista_directorios))+" subcarpetas.")
+                    str_info=str_info + "\t \u23FACarpeta: " +str(elemento) +" formada por "+str(len(Lista_ficheros))+" ficheros y "+str(len(Lista_directorios))+" subcarpetas.\n"
+                    
+                    #En caso de encontrarnos con directorios en los niveles inferiores vamos bajando hasta sacar todos los ficheros
+                    contador = 0
+                    start_str = "\t \u23FA"
+                    str_sub=""
+                    while((len(Lista_directorios)!=0) and (contador <= max_directorios)):
+                        
+                        start_str = "\t"+start_str
+                        str_sub = "sub-"+str_sub
+                        lis_direc=[]
+                        lis_fic=[]
+
+                        for direc in Lista_directorios:
+                            
+                            if(str(direc.split("/")[-1]) not in Lista_exclusiones):
+                                print(start_str + "Dentro de la carpeta "+str(direc.split("/")[-2])+" se encuentra la "+str_sub+"carpeta "+str(direc.split("/")[-1])+" que contenía "+str(len(os.listdir(direc)))+" elementos.")
+                                str_info=str_info + start_str + "Dentro de la carpeta "+str(direc.split("/")[-2])+" se encuentra la "+str_sub+"carpeta "+str(direc.split("/")[-1])+" que contenía "+str(len(os.listdir(direc)))+" elementos.\n"
+                                
+                                lis_direc+=[direc + "/" + str(fichero) for fichero in os.listdir(direc)]
+                            
+                            else:
+                                print(start_str +"[Exclusión]: Dentro de la carpeta "+str(direc.split("/")[-2])+" se encuentra la "+str_sub+"carpeta "+str(direc.split("/")[-1])+" que pertenece a la lista de exclusión, por lo que no será procesada.\n")
+                                str_info=str_info + start_str + "[Exclusión]: Dentro de la carpeta "+str(direc.split("/")[-2])+" se encuentra la "+str_sub+"carpeta "+str(direc.split("/")[-1])+" que pertenece a la lista de exclusión, por lo que no será procesada.\n"
+                        
+                        lis_fic, Lista_directorios = Encuentra_ficheros(lis_direc)
+                        if(len(lis_fic)!=0):
+                            Lista_ficheros = Lista_ficheros + lis_fic
+
+                        contador = contador +1
+
+                    globals()['direcciones_%s' % conjunto] += Lista_ficheros
+
+            else:
+                print("\t \u23FAEl elemento "+ str(element)+" se encuentra dentro de la lista de exclusiones, por lo que no se procesará.")
+                str_info=str_info +"\t \u23FAEl elemento "+ str(element)+" se encuentra dentro de la lista de exclusiones, por lo que no se procesará.\n"
+           
+    if('direcciones_'+ str(conjunto) in globals()):
+        globals()['direcciones_%s' % conjunto] = sorted(globals()['direcciones_%s' % conjunto])
+    
+assert (("direcciones_Train" in globals()) or ("direcciones_Test" in globals()) or ("direcciones_Val" in globals())), "[\033[1mImportante\033[0m]: No se ha encontrado ninguna archivo que procesar. Por favor, introduzca algún archivo y verifique que este no pertenezca a la lista de exclusiones."
 
 # ### Función para sacar las matrices (*)
 def Saca_matrices(direcciones):
@@ -244,6 +215,7 @@ def Saca_matrices(direcciones):
     datos_totales=[]
     secuencias=[]
     listado = None
+    orden=[]
     
     #Para cargar los datos usamos pd.read_csv(), el cual nos carga los datos en formato Dataframe, pero nosotros lo convertiremos a lista para poder trabajar con ello
     for direccion in direcciones:
@@ -258,7 +230,7 @@ def Saca_matrices(direcciones):
             datos_totales.append((pd.read_csv(direccion, on_bad_lines='skip', header = None)).to_numpy().tolist())
     
     #Mostramos la cantidad de datos que se han leido para asegurarnos más tarde de que no se pierda ninguno
-    print("En total se han descargado "+ str(len(datos_totales)) +" ficheros, los cuales tienen las siguientes dimensiones:")
+    print("En total se han descargado "+ str(len(datos_totales)) +" ficheros, los cuales se colocarán siguiendo el orden que se muestra a continuación:")
     globals()["str_info"]=globals()["str_info"] + "En total se han descargado "+ str(len(datos_totales)) +" ficheros, los cuales tienen las siguientes dimensiones:\n"
     
     cuenta_datos = 0
@@ -268,6 +240,8 @@ def Saca_matrices(direcciones):
         globals()["str_info"]=globals()["str_info"] + "\t\u23FA" + "El archivo '"+ str(direcciones[i]) +" contenía "+ str(len(datos_totales[i])) +" datos, los cuales en total representaban "+str(datos_totales[i][-1][0] +1)+" secuencias.\n"
         cuenta_datos = cuenta_datos + len(datos_totales[i])
         secuencias.append(datos_totales[i][-1][0])
+        orden.append([str(direcciones[i]), datos_totales[i][-1][0]])
+        
     print("Por lo que el total de datos a procesar tiene que ser de "+str(cuenta_datos))
     
     #Una vez cargados los datos los pasaremos de una lista de listas a una sola lista
@@ -276,45 +250,62 @@ def Saca_matrices(direcciones):
     assert len(flat_list) == cuenta_datos, "Ha surgido un error al aplanar los datos. Originalmente había "+ str(cuenta_datos) +", pero tras aplanar nos hemos quedado con "+ str(len(flat_list)) +".Por favor, revisa el código"
     
     #Escribimos más informacion
-    globals()["str_info"]=globals()["str_info"] + "El total de datos a procesar dentro de este conjunto ha de ser de "+str(cuenta_datos)+ ".\n"
+    globals()["str_info"]=globals()["str_info"] + "El total de datos a procesar dentro de este conjunto ha de ser de "+str(cuenta_datos)+ " contenidos en "+str(sum(secuencias)+len(secuencias))+" secuencias.\n"
     
     #Finalmente convertimos dicha lista a formato matriz para poder trabajar con ella de manera cómoda
     matriz = np.array(flat_list)
     
-    return matriz, secuencias, listado
+    return matriz, secuencias, listado, orden
 
 #Creamos las listas de entrenamiento, testeo y validación
 if("direcciones_Train" in globals()):
     print('\033[1m'+'Set de entrenamiento'+'\033[0m')
-    str_info = str_info + "Set de entrenamiento\n"
-    matriz_Train, secuencias_Train, listado_base_Train = Saca_matrices(direcciones_Train)
+    str_info = str_info + "\n\u25BA Extracción de datos del set de entrenamiento \u25C4\n"
+    matriz_Train, secuencias_Train, listado_base_Train, orden_Train = Saca_matrices(direcciones_Train)
     print("Se ha creado la variable matriz_Train")
+    
 else:
     if("matriz_Train" in globals()): del matriz_Train
     if("secuencias_Train" in globals()): del secuencias_Train
     if("listado_base_Train" in globals()): del listado_base_Train
+    if("orden_Train" in globals()):del orden_Train
 
 if("direcciones_Test" in globals()):
     print('\033[1m'+'Set de testeo'+'\033[0m')
-    str_info = str_info + "Set de testeo\n"
-    matriz_Test, secuencias_Test, listado_base_Test = Saca_matrices(direcciones_Test)
+    str_info = str_info + "\n\u25BA Extracción de datos del set de testeo \u25C4\n"
+    matriz_Test, secuencias_Test, listado_base_Test, orden_Test = Saca_matrices(direcciones_Test)
     print("Se ha creado la variable matriz_Test")
 else:
     if("matriz_Test" in globals()): del matriz_Test
     if("secuencias_Test" in globals()): del secuencias_Test
     if("listado_base_Test" in globals()): del listado_base_Test
-
+    if("orden_Test" in globals()):del orden_Test
+        
 if("direcciones_Val" in globals()):
     print('\033[1m'+'Set de validación'+'\033[0m')
-    str_info = str_info + "Set de validación\n"
-    matriz_Val, secuencias_Val, listado_base_Val = Saca_matrices(direcciones_Val)
+    str_info = str_info + "\n\u25BA Extracción de datos del set de validación \u25C4\n"
+    matriz_Val, secuencias_Val, listado_base_Val, orden_Val = Saca_matrices(direcciones_Val)
     print("Se ha creado la variable matriz_Val")
 else:
     if("matriz_Val" in globals()): del matriz_Val
     if("secuencias_Val" in globals()): del secuencias_Val
     if("listado_base_Val" in globals()): del listado_base_Val
+    if("orden_Val" in globals()):del orden_Val
         
+#Recuento del tiempo
+tiempo_datos = time.time()
+tiempo_total = tiempo_datos-tiempo_inicio
 
+segundos=tiempo_total
+ 
+horas=int(segundos/3600)
+segundos-=horas*3600
+minutos=int(segundos/60)
+segundos-=int(minutos*60)
+segundos =int(segundos)
+
+print("\n\u23F3%s:%s:%s" % (horas,minutos,segundos))
+str_info = str_info + "\n\t\u23F3 En total el proceso de extracción de datos ha tardado " + str(horas) +":"+str(minutos)+":"+str(segundos)+".\n"
 
 # ## Procesado de los datos(*)
 #Comprobamos si hay alguna lista y limpiamos las que haya (si tienen indices Latitud o Longitud los eliminamos)
@@ -328,6 +319,8 @@ lista_filtros=[
     "Latitud",
     "Longitud"
 ]
+
+str_info = str_info + "\n\u25BA Obtención de las listas \u25C4\n"
 
 for element in lista_listas:
     if((element in globals()) & (element is not None)):
@@ -392,7 +385,6 @@ def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiqueta
             
         
         fila = offset + int(element[0])
-        #print(fila, offset, int(element[0]),secuencias[set_datos])
         columna = np.where(identificadores == element[2])
         
         matriz_salida[fila,int(columna[0])] = element[3]
@@ -400,10 +392,8 @@ def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiqueta
 
         #Guardamos las marcas de tiempo
         matriz_time[fila] = element[4]
-        #print(matriz_time[fila], type(element[4]), len(element[4]))
         
         muestra_anterior = element[0]
-        #print("Fila: "+str(fila)+" columna: "+str(columna))
     
     listado = identificadores
         
@@ -494,6 +484,8 @@ def Organizador_general(matriz_scan, secuencias, identificadores=None, borrar_nu
                 #print(columna[0], element[2])
                 matriz_salida[fila,int(columna[0])] = element[3]
         
+        muestra_anterior = element[0]
+
         #Guardamos las marcas de tiempo
         matriz_time[int(element[0])] = element[4]
             
@@ -519,6 +511,8 @@ lista_procesar=[
     "matriz_Test",
     "matriz_Val"
 ]
+
+str_info = str_info + "\n\u25BA Obtención de las matrices \u25C4\n"
 
 #Vamos procesando las matrices de una en una
 for element in lista_procesar:
@@ -553,7 +547,20 @@ for element in lista_procesar:
         print("Resultado de tamaño "+str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[0])+ "x" +str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[1])+".\n Aquí un ejemplo de las primeras 10 filas y columnas:\n"+ str(globals()["matriz_"+'%s'%element[7:]+"_organizada"][:10,:10]))
         str_info = str_info + "Resultado de tamaño "+str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[0])+ "x" +str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[1])+".\n Aquí un ejemplo de las primeras 10 filas y columnas:\n"+ str(globals()["matriz_"+'%s'%element[7:]+"_organizada"][:10,:10]) + "\n"
         
+#Recuento del tiempo
+tiempo_matriz = time.time()
+tiempo_total = tiempo_matriz-tiempo_inicio
 
+segundos=tiempo_total
+ 
+horas=int(segundos/3600)
+segundos-=horas*3600
+minutos=int(segundos/60)
+segundos-=int(minutos*60)
+segundos =int(segundos)
+
+print("\n\u23F3%s:%s:%s" % (horas,minutos,segundos))
+str_info = str_info + "\n\t\u23F3 En total el procesado de la matriz ha tardado " + str(horas) +":"+str(minutos)+":"+str(segundos)+".\n"
 
 # ## Escritura de los datos procesados(*)
 if(os.path.exists(date_path)!=True):
@@ -579,6 +586,7 @@ for indice in lista_indices:
             globals()["index_"+str(indice[6:])] = globals()["index_"+str(indice[6:])] + list(range(secuencia+1))
 
 #Pasamos cada matriz a csv y las guardamos en la carpeta.
+#Pasamos cada matriz a csv y las guardamos en la carpeta.
 lista_matrices =[
     "matriz_Train_organizada",
     "matriz_Train_etiquetas",
@@ -591,7 +599,10 @@ lista_matrices =[
     "matriz_Val_timestamp",
     "listado_Train",
     "listado_Test",
-    "listado_Val"
+    "listado_Val",
+    "orden_Train",
+    "orden_Test",
+    "orden_Va"
 ]
 
 for matriz in lista_matrices:    
@@ -631,10 +642,12 @@ for matriz in lista_matrices:
             elif("Val_organizada" in matriz):
                 (pd.DataFrame(globals()['%s' % matriz], index = index_Val, columns= listado_Val)).to_csv(file_path)
             
+            elif("orden" in matriz):
+                (pd.DataFrame(globals()['%s' % matriz])).to_csv(file_path, index=False, header=False)
+                
             else:
                 (pd.DataFrame(globals()['%s' % matriz])).to_csv(file_path, index=False)
 
-            #(pd.DataFrame(globals()['%s' % matriz])).to_csv(file_path, index=False)
             print(str(matriz) + " guardada en " +file_path)
 
 #Recuento del tiempo
@@ -650,7 +663,7 @@ segundos-=int(minutos*60)
 segundos =int(segundos)
 
 print("\u23F3%s:%s:%s" % (horas,minutos,segundos))
-str_info = str_info + "\u23F3 En total el programa ha tardado " + str(horas) +":"+str(minutos)+":"+str(segundos)+".\n" 
+str_info = str_info + "\n\u23F3 En total el programa ha tardado " + str(horas) +":"+str(minutos)+":"+str(segundos)+".\n" 
 
 #Escribimos el .txt
 informacion = open(hour_path + "/informacion.txt", "w")
