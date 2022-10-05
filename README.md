@@ -63,6 +63,7 @@ Como hay varias alternativas a la hora de procesar los datos, se han colocado la
 * **Espera**: Variable booleana para esperar tras la verificación del arbol de trabajo (para que se pueda ingresar los ficheros sin necesidad de reiniciar el programa) o si por el contrario no se quiere hacer la pausa (por motivos de fluidez).
 * **Lista_exclusiones**: Es una lista con los nombres de las carpetas que no se quieren añadir al procesado. Por ejemplo, si dentro de la lista está el nombre "S7" en el caso de encontrar una carpeta así llamada en alguno de los directorios su contenido no se procesará.
 * **max_directorios**: Indica el número máximos de directorios que se deben de tener en cuenta. La principal función de dicha variable es dar una opción de escape a un bucle while. Si hay menos carpetas que las indicadas no pasa nada, pero si hay más llegado al nivel indicado el programa parará (y por lo tanto los ficheros que esten dentro de las carpetas más abajo no se procesarán).
+* **ordenar_listas**: Variablo booleana que indica si las listas de direcciones MACs se han de ordenar o no. En caso afirmativo se ordenarán en orden ascendente, en caso negativo se ordenarán según su orden de aparición (implica un tiempo extra).
 * **junto_X**: Variable booleana que especifica si quieres obtener las etiquetes (en caso de haberlas) en la misma matriz de salida o si las quieres en un fichero aparte.
 * **borrar_datos_nuevos**: Variable booleana que indica si quieres borrar los datos referentes a AP's solo vistos en los datos de Testeo y/o Validación o si los quieres conservar (en caso afirmativo aparecerán al final de la lista de AP's base).
 
@@ -94,3 +95,10 @@ En esta actualización se han realizado varias simplificaciones y mejoras, así 
 * Se ha añadido el programa "Tester_procesador".
 * Bugs arreglados:
     * Arreglado un fallo que hacía que los datos no se colocasen correctamente en las matrices de validación y testeo.
+
+## Actualización 05/10/2022
+En esta actualización se han corregido un par de errores y se ha implementado una nueva función:
+* Se ha añadido la variable "ordenar_listas" con la que el usuario puede decidir si ordenar las MACs por aparación o por orden numérico.
+* Bugs arreglados:
+    * Arreglado un fallo por el que no se podían poner las etiquetas juntas en las matrices de testeo y validación.
+    * Arreglado un fallo que hacía que no se generase el archivo "orden_Val".
