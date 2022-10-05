@@ -27,11 +27,14 @@ Lista_exclusiones=[
 #Número máximo de directorios que puede abrir antes de parar
 max_directorios = 5
 
+#Variable para indicar si se busca ordenar las lista de APs al crear la matriz o si se forman conforma vayan saliendo
+ordenar_listas=False #False= bucle for, True=np.uniques
+
 #Para la obtención de las matrices
 #Definimos si queremos las etiquetas en la misma matriz que los datos o por separado y si queremos borrar los datos que no aparezcan en la lista
-junto_Train = False
-junto_Test = False
-junto_Val = False
+junto_Train = True
+junto_Test = True
+junto_Val = True
 
 #Definimos si queremos eliminar o conservar los datos que hagan referencia a AP's que solo se encuentren en los ficheros de validación y testeo
 borrar_datos_nuevos_Test = True
@@ -103,7 +106,7 @@ tiempo_inicio = time.time()
 
 
 # ## Obtención de los datos (*)
-# ### Carga de datos
+# Carga de datos
 
 #Función para diferenciar los ficheros y carpetas de una lista de direcciones 
 def Encuentra_ficheros(lista_direcciones):
@@ -209,7 +212,7 @@ for path in Lista_raw_path:
     
 assert (("direcciones_Train" in globals()) or ("direcciones_Test" in globals()) or ("direcciones_Val" in globals())), "[\033[1mImportante\033[0m]: No se ha encontrado ninguna archivo que procesar. Por favor, introduzca algún archivo y verifique que este no pertenezca a la lista de exclusiones."
 
-# ### Función para sacar las matrices (*)
+# Función para sacar las matrices (*)
 def Saca_matrices(direcciones):
     #Almacenaremos los datos en una lista de listas de tamaño variable en función de la cantidad de ficheros que haya
     datos_totales=[]
@@ -349,14 +352,26 @@ if("matriz_Train" in globals()):
         matriz_Aps = matriz_Train[:,2]
 
         #Nos quedamos solo con uno de cada para crear la lista
-        Aps_unicos = np.unique(matriz_Aps)
+        if(ordenar_listas==False):
+            #Si no queremos ordenar la lista mostramos las direcciones MAC conforme vayan apareciendo
+            print("Como ha seleccionado la opción para no ordenar la lista, se esta procesando usando un bucle for, por lo que este paso puede tomar un poco de tiempo.")
+            Aps_unicos = []            
+            for element in matriz_Aps:
+                if element not in Aps_unicos: Aps_unicos.append(element)
+            Aps_unicos=np.array(Aps_unicos)
+            str_info = str_info + "El listado con las direcciones MAC se ha procesado manualmente ya que ha seleccionado la opción de no ordenarlo."
+            
+        else:
+            Aps_unicos = np.unique(matriz_Aps)    
+            str_info = str_info + "El listado ha sido ordenado de forma ascendente en función de las direcciones MAC."
+            
         print("Entre los datos de entrenamiento se han encontrado un total de "+ str(len(Aps_unicos))+" direcciones MAC diferentes. \nAquí te muestro las 10 primeras:\n"+ str(Aps_unicos[0:10]) )
         listado_base_Train = Aps_unicos
         
         str_info = str_info + "Hemos procesado los datos de entrenamiento. En total hemos detectado " +str(len(Aps_unicos))+" direcciones MAC únicas." + "Aquí te muestro las 10 primeras:\n"+ str(Aps_unicos[0:10]) + "\n"
 
 
-# ### Funciónes para ordenar los datos (*)
+# ##Funciónes para ordenar los datos (*)
 def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiquetas_juntas=False):
     #En la primera columna de la matriz se almacena el número de escaneo, así que para saber cuantos escaneos hay leemos el valor de la primera columna de la última fila
     numero_scaneos=sum(secuencias)+len(secuencias) #Como empiezan en 0 sumamos 1 por cada secuencia
@@ -441,7 +456,18 @@ def Organizador_general(matriz_scan, secuencias, identificadores=None, borrar_nu
         #Creamos la lista de los diferentes APs
         Aps_unicos = np.zeros(matriz_scan.shape[0])
         Aps_unicos = matriz_scan[:,2]
-        lista_Aps = np.unique(Aps_unicos)
+        
+        if(ordenar_listas==False):
+            #Si no queremos ordenar la lista mostramos las direcciones MAC conforme vayan apareciendo
+            print("Como ha seleccionado la opción para no ordenar la lista, se esta procesando usando un bucle for, por lo que este paso puede tomar un poco de tiempo.")
+            lista_Aps = []            
+            for element in Aps_unicos:
+                if element not in lista_Aps: lista_Aps.append(element)
+            lista_Aps=np.array(lista_Aps)
+            
+        else:
+            lista_Aps = np.unique(Aps_unicos)
+        
         print("No se ha introducido ninguna lista, por lo que se procede a organizar los APs conforme aparecen en los csv.\nEn total se han encontrado "+ str(len(Aps_unicos))+" direcciones MAC diferentes. Aquí te muestro las 10 primeras:\n"+ str(Aps_unicos[0:10]) )
         globals()["str_info"]=globals()["str_info"] + "No se ha introducido ninguna lista, por lo que se procede a organizar los APs conforme aparecen en los csv.\nEn total se han encontrado "+ str(len(Aps_unicos))+" direcciones MAC diferentes. Aquí te muestro las 10 primeras:\n"+ str(Aps_unicos[0:10])+"\n"
         
@@ -492,16 +518,17 @@ def Organizador_general(matriz_scan, secuencias, identificadores=None, borrar_nu
         #Si hay etiquetas
         if(len(element) >= 5):
             if(element[5][2]=="."):
-                matriz_etiquetas[int(element[0])] = [float(s) for s in re.findall(r'-?\d+\.?\d*', str(element[5]))]
+                matriz_etiquetas[fila] = [float(s) for s in re.findall(r'-?\d+\.?\d*', str(element[5]))]
                 hay_etiquetas = True
 
+    #Devolvemos el listado
+    listado = lista_Aps
+    
     #Si está indicado que se añadan las etiquetas
     if(etiquetas_juntas == True & ("hay_etiquetas" in locals())):
         matriz_salida = np.concatenate((matriz_salida, matriz_etiquetas), axis=1)
         matriz_etiquetas = None
-
-    #Devolvemos el listado
-    listado = lista_Aps
+        listado = np.concatenate((listado, ["Latitud","Longitud"]), axis=0)
     
     return (matriz_salida, matriz_etiquetas, matriz_time, listado)
 
@@ -602,7 +629,7 @@ lista_matrices =[
     "listado_Val",
     "orden_Train",
     "orden_Test",
-    "orden_Va"
+    "orden_Val"
 ]
 
 for matriz in lista_matrices:    
