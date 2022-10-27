@@ -66,6 +66,7 @@ Como hay varias alternativas a la hora de procesar los datos, se han colocado la
 * **ordenar_listas**: Variablo booleana que indica si las listas de direcciones MACs se han de ordenar o no. En caso afirmativo se ordenarán en orden ascendente, en caso negativo se ordenarán según su orden de aparición (implica un tiempo extra).
 * **junto_X**: Variable booleana que especifica si quieres obtener las etiquetes (en caso de haberlas) en la misma matriz de salida o si las quieres en un fichero aparte.
 * **borrar_datos_nuevos**: Variable booleana que indica si quieres borrar los datos referentes a AP's solo vistos en los datos de Testeo y/o Validación o si los quieres conservar (en caso afirmativo aparecerán al final de la lista de AP's base).
+* **inv_value**: Valor que se asignará dentro de la matriz a los puntos de acceso no vistos. Por ejemplo, si en la trayectoria 1, punto 1 no se ha visto un determinado AP, el valor que se le asignará a su potencia es el que esté aquí marcado.
 
 
 ## Programa de testeo
@@ -102,3 +103,7 @@ En esta actualización se han corregido un par de errores y se ha implementado u
 * Bugs arreglados:
     * Arreglado un fallo por el que no se podían poner las etiquetas juntas en las matrices de testeo y validación.
     * Arreglado un fallo que hacía que no se generase el archivo "orden_Val".
+
+## Actualización 27/10/2022
+Pequeña actualización para mejorar el funcionamiento del programa:
+* Se ha añadido la variable "inv_value" para hacer accesible la configuración de as potencias de los puntos de acceso no visibles.
