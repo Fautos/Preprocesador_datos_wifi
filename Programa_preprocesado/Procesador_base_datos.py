@@ -40,6 +40,8 @@ junto_Val = True
 borrar_datos_nuevos_Test = True
 borrar_datos_nuevos_Val = True
 
+#Valor por el que se reempplazarán las potencias que no se vean
+inv_value=-100
 
 # ## Creación del espacio de trabajo (*)
 
@@ -379,7 +381,7 @@ def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiqueta
     globals()["str_info"]=globals()["str_info"] + "Localizados "+str(numero_scaneos)+" escaneos distintos.\n"
     
     #Definimos el tamaño de la matriz con los APs
-    matriz_salida=np.ones((numero_scaneos,len(identificadores)))*(-200)
+    matriz_salida=np.ones((numero_scaneos,len(identificadores)))*(inv_value)
     #Definimos el tamaño de la matriz de etiquetas
     matriz_etiquetas=np.zeros((numero_scaneos,2))
     #Definimos el tamaño de la matriz de tiempos. Como son strings hay que definir el tamaño de cada item
@@ -472,7 +474,7 @@ def Organizador_general(matriz_scan, secuencias, identificadores=None, borrar_nu
         globals()["str_info"]=globals()["str_info"] + "No se ha introducido ninguna lista, por lo que se procede a organizar los APs conforme aparecen en los csv.\nEn total se han encontrado "+ str(len(Aps_unicos))+" direcciones MAC diferentes. Aquí te muestro las 10 primeras:\n"+ str(Aps_unicos[0:10])+"\n"
         
     #Definimos el tamaño de la matriz con los APs
-    matriz_salida=np.ones((numero_scaneos,len(lista_Aps)))*(-200)
+    matriz_salida=np.ones((numero_scaneos,len(lista_Aps)))*(inv_value)
     #Definimos el tamaño de la matriz de etiquetas
     matriz_etiquetas=np.zeros((numero_scaneos,2))
     #Definimos el tamaño de la matriz de tiempos
