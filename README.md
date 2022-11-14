@@ -104,6 +104,7 @@ En esta actualización se han corregido un par de errores y se ha implementado u
     * Arreglado un fallo por el que no se podían poner las etiquetas juntas en las matrices de testeo y validación.
     * Arreglado un fallo que hacía que no se generase el archivo "orden_Val".
 
-## Actualización 27/10/2022
-Pequeña actualización para mejorar el funcionamiento del programa:
-* Se ha añadido la variable "inv_value" para hacer accesible la configuración de as potencias de los puntos de acceso no visibles.
+## Actualización 14/11/2022
+En esta actualización se ha añadido una nueva funcionalidad al programa:
+* Se ha añadido la variable "inv_value" para hacer accesible la configuración de las potencias de los puntos de acceso no visibles.
+* Se ha añadido información acerca de los valores máximos y mínimos encontrados en las potencias, así como un aviso en caso de que exista una potencia menor que el valor asignado a "inv_value".
