@@ -591,6 +591,29 @@ segundos =int(segundos)
 print("\n\u23F3%s:%s:%s" % (horas,minutos,segundos))
 str_info = str_info + "\n\t\u23F3 En total el procesado de la matriz ha tardado " + str(horas) +":"+str(minutos)+":"+str(segundos)+".\n"
 
+#Verificaión del valor mínimo
+if "matriz_Train_organizada" in globals():
+    if (junto_Train==True):
+        valores = np.unique(matriz_Train_organizada[:,0:-2])
+            
+    else:
+        valores = np.unique(matriz_Train_organizada)
+        
+    maximo = np.amax(valores)
+    minimo = np.amin(valores)
+    print(maximo,minimo)
+    print("Los valores que han aparecido en la matriz de entrenamiento son" + str(valores))
+    str_info = str_info + "Los valores que han aparecido en la matriz de entrenamiento son" + str(valores)+"\n"
+
+    if(minimo < inv_value):
+        valores_menores = [valor for valor in valores if valor < inv_value]
+        val_y_frec = [str("Valor " +str(valor)+" aparece "+str(np.count_nonzero(matriz_Train_organizada == valor))+" veces.") for valor in valores_menores]
+        print("\t\u2620Cuidado, has asignado un valor a los puntos de acceso no visbles que es menor que uno (o más) de los valores encontrados.\nEsta es la lista de valores inferiores al asignado y la frecuencia con la que han aparecido cada uno de ellos: "+str(val_y_frec))
+        str_info = str_info + "\t\u2620Cuidado, has asignado un valor a los puntos de acceso no visbles que es menor que uno (o más) de los valores encontrados.\nEsta es la lista de valores inferiores al asignado y la frecuencia con la que han aparecido cada uno de ellos: "+str(val_y_frec) +"\n"
+    else:
+        print("Ningún valor es inferior al asignado.")
+        str_info = str_info + "Ningún valor es inferior al asignado." + "\n"
+
 # ## Escritura de los datos procesados(*)
 if(os.path.exists(date_path)!=True):
     os.mkdir(date_path)
