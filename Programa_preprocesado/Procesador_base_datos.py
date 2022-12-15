@@ -44,7 +44,7 @@ borrar_datos_nuevos_Test = True
 borrar_datos_nuevos_Val = True
 
 #Variable para lanzar el checkeo del valor mínimo
-check_minimun = False
+check_minimun = True
 
 #Valor por el que se reempplazarán las potencias que no se vean
 inv_value=-100
@@ -615,13 +615,13 @@ if(check_minimun == True):
     # Comprobamos los valores 
     if "matriz_Train_organizada" in globals():
         if (junto_Train==True) & (add_timestamp==True):
-            valores = np.unique(matriz_Train_organizada[:,0:-3])
+            valores = np.unique(matriz_Train_organizada[:,0:-3]).astype(float)
         elif (junto_Train==True) & (add_timestamp==False):
-            valores = np.unique(matriz_Train_organizada[:,0:-2])
+            valores = np.unique(matriz_Train_organizada[:,0:-2]).astype(float)
         elif (junto_Train==False) & (add_timestamp==True):
-            valores = np.unique(matriz_Train_organizada[:,0:-1])
+            valores = np.unique(matriz_Train_organizada[:,0:-1]).astype(float)
         else:
-            valores = np.unique(matriz_Train_organizada)
+            valores = np.unique(matriz_Train_organizada).astype(float)
 
         maximo = np.amax(valores)
         minimo = np.amin(valores)
