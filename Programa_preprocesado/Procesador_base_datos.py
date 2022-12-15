@@ -36,9 +36,15 @@ junto_Train = True
 junto_Test = True
 junto_Val = True
 
+#Para añadir la columna de tiempo a la matriz de salida
+add_timestamp = True
+
 #Definimos si queremos eliminar o conservar los datos que hagan referencia a AP's que solo se encuentren en los ficheros de validación y testeo
 borrar_datos_nuevos_Test = True
 borrar_datos_nuevos_Val = True
+
+#Variable para lanzar el checkeo del valor mínimo
+check_minimun = False
 
 #Valor por el que se reempplazarán las potencias que no se vean
 inv_value=-100
@@ -374,7 +380,7 @@ if("matriz_Train" in globals()):
 
 
 # ##Funciónes para ordenar los datos (*)
-def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiquetas_juntas=False):
+def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiquetas_juntas=False, add_time=False):
     #En la primera columna de la matriz se almacena el número de escaneo, así que para saber cuantos escaneos hay leemos el valor de la primera columna de la última fila
     numero_scaneos=sum(secuencias)+len(secuencias) #Como empiezan en 0 sumamos 1 por cada secuencia
     print("Localizados "+str(numero_scaneos)+" escaneos distintos")
@@ -420,9 +426,16 @@ def Organizador_entrenamiento(matriz_scan, secuencias, identificadores, etiqueta
         matriz_etiquetas = None
         listado = np.concatenate((listado, ["Latitud","Longitud"]), axis=0)
     
+    #Si esta indicado que se añadan las marcas temporales
+    if(add_time == True):
+        print("He entrado en add time.")
+        matriz_salida = np.concatenate((matriz_salida, matriz_time), axis=1)
+        matriz_time = None
+        listado = np.concatenate((listado, ["Time stamp"]), axis=0)
+    
     return (matriz_salida, matriz_etiquetas, matriz_time, listado)
 
-def Organizador_general(matriz_scan, secuencias, identificadores=None, borrar_nuevos=False, etiquetas_juntas=False):
+def Organizador_general(matriz_scan, secuencias, identificadores=None, borrar_nuevos=False, etiquetas_juntas=False, add_time=False):
     #En la primera columna de la matriz se almacena el número de escaneo, así que para saber cuantos escaneos hay leemos el valor de la primera columna de la última fila
     numero_scaneos=sum(secuencias)+len(secuencias) #Como empiezan en 0 sumamos 1 por cada secuencia
     print("Localizados "+str(numero_scaneos)+" escaneos distintos")
@@ -532,6 +545,12 @@ def Organizador_general(matriz_scan, secuencias, identificadores=None, borrar_nu
         matriz_etiquetas = None
         listado = np.concatenate((listado, ["Latitud","Longitud"]), axis=0)
     
+    #Si está indicado que se añadan las marcas de tiempo
+    if(add_time == True):
+        matriz_salida = np.concatenate((matriz_salida, matriz_time), axis=1)
+        matriz_time = None
+        listado = np.concatenate((listado, ["Time stamp"]), axis=0)
+    
     return (matriz_salida, matriz_etiquetas, matriz_time, listado)
 
 # ### Obtención de las matrices
@@ -551,7 +570,7 @@ for element in lista_procesar:
         
         #Si se trata del conjunto de entrenamiento sabemos que siempre tendremos una lista
         if("Train" in element):
-            globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_entrenamiento(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], globals()["listado_base_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
+            globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_entrenamiento(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], globals()["listado_base_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]], add_time=add_timestamp)
         
         #Si es el conjunto de testeo o validacion puede haber varios escenarios
         else:
@@ -559,19 +578,19 @@ for element in lista_procesar:
             if("listado_base_"+ str(element[7:]) in globals()):
                 print("Matriz obtenida a partir de una lista base.")
                 str_info = str_info + "Matriz obtenida a partir de una lista base.\n"
-                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], globals()["listado_base_"+'%s'%element[7:]], borrar_nuevos = globals()["borrar_datos_nuevos_" +'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
+                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], globals()["listado_base_"+'%s'%element[7:]], borrar_nuevos = globals()["borrar_datos_nuevos_" +'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]], add_time=add_timestamp)
             
             #Si no tenemos lista base pero tenemos datos de entrenamiento lo lógico será que organizemos los datos siguiendo dicha lista    
             elif("matriz_Train" in globals()):
                 print("Matriz obtenida a partir de los datos de entrenamiento. Los AP's específicos de esta parte se encuentran al final")
                 str_info = str_info + "Matriz obtenida a partir de los datos de entrenamiento. Los AP's específicos de esta parte se encuentran al final.\n"
-                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], listado_base_Train, borrar_nuevos = globals()["borrar_datos_nuevos_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
+                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], listado_base_Train, borrar_nuevos = globals()["borrar_datos_nuevos_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]], add_time=add_timestamp)
             
             #Si no estamos en ninguno de los casos anteriores no indicamos ningún orden
             else:
                 print("Matriz obtenida a partir de los datos crudos sin ninguna referencia.")
                 str_info = str_info + "Matriz obtenida a partir de los datos crudos sin ninguna referencia.\n"
-                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]])
+                globals()["matriz_"+'%s'%element[7:]+"_organizada"], globals()["matriz_"+'%s'%element[7:]+"_etiquetas"], globals()["matriz_"+'%s'%element[7:]+"_timestamp"], globals()["listado_"+'%s'%element[7:]] = Organizador_general(globals()['%s'%element], globals()["secuencias_"+'%s'%element[7:]], etiquetas_juntas = globals()["junto_"+'%s'%element[7:]], add_time=add_timestamp)
         
         print("Resultado de tamaño "+str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[0])+ "x" +str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[1])+".\n Aquí un ejemplo de las primeras 10 filas y columnas:\n"+ str(globals()["matriz_"+'%s'%element[7:]+"_organizada"][:10,:10]))
         str_info = str_info + "Resultado de tamaño "+str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[0])+ "x" +str(globals()["matriz_"+'%s'%element[7:]+"_organizada"].shape[1])+".\n Aquí un ejemplo de las primeras 10 filas y columnas:\n"+ str(globals()["matriz_"+'%s'%element[7:]+"_organizada"][:10,:10]) + "\n"
@@ -592,28 +611,33 @@ print("\n\u23F3%s:%s:%s" % (horas,minutos,segundos))
 str_info = str_info + "\n\t\u23F3 En total el procesado de la matriz ha tardado " + str(horas) +":"+str(minutos)+":"+str(segundos)+".\n"
 
 #Verificaión del valor mínimo
-if "matriz_Train_organizada" in globals():
-    if (junto_Train==True):
-        valores = np.unique(matriz_Train_organizada[:,0:-2])
+if(check_minimun == True):
+    # Comprobamos los valores 
+    if "matriz_Train_organizada" in globals():
+        if (junto_Train==True) & (add_timestamp==True):
+            valores = np.unique(matriz_Train_organizada[:,0:-3])
+        elif (junto_Train==True) & (add_timestamp==False):
+            valores = np.unique(matriz_Train_organizada[:,0:-2])
+        elif (junto_Train==False) & (add_timestamp==True):
+            valores = np.unique(matriz_Train_organizada[:,0:-1])
+        else:
+            valores = np.unique(matriz_Train_organizada)
+
+        maximo = np.amax(valores)
+        minimo = np.amin(valores)
+        print(maximo,minimo)
+        print("Los valores que han aparecido en la matriz de entrenamiento son" + str(valores))
+        str_info = str_info + "Los valores que han aparecido en la matriz de entrenamiento son" + str(valores)+"\n"
+
+        if(minimo < inv_value):
+            valores_menores = [valor for valor in valores if valor < inv_value]
+            val_y_frec = [str("Valor " +str(valor)+" aparece "+str(np.count_nonzero(matriz_Train_organizada == valor))+" veces.") for valor in valores_menores]
+            print("\t\u2620Cuidado, has asignado un valor a los puntos de acceso no visbles que es menor que uno (o más) de los valores encontrados.\nEsta es la lista de valores inferiores al asignado y la frecuencia con la que han aparecido cada uno de ellos: "+str(val_y_frec))
+            str_info = str_info + "\t\u2620Cuidado, has asignado un valor a los puntos de acceso no visbles que es menor que uno (o más) de los valores encontrados.\nEsta es la lista de valores inferiores al asignado y la frecuencia con la que han aparecido cada uno de ellos: "+str(val_y_frec) +"\n"
+        else:
+            print("Ningún valor es inferior al asignado.")
+            str_info = str_info + "Ningún valor es inferior al asignado." + "\n"
             
-    else:
-        valores = np.unique(matriz_Train_organizada)
-        
-    maximo = np.amax(valores)
-    minimo = np.amin(valores)
-    print(maximo,minimo)
-    print("Los valores que han aparecido en la matriz de entrenamiento son" + str(valores))
-    str_info = str_info + "Los valores que han aparecido en la matriz de entrenamiento son" + str(valores)+"\n"
-
-    if(minimo < inv_value):
-        valores_menores = [valor for valor in valores if valor < inv_value]
-        val_y_frec = [str("Valor " +str(valor)+" aparece "+str(np.count_nonzero(matriz_Train_organizada == valor))+" veces.") for valor in valores_menores]
-        print("\t\u2620Cuidado, has asignado un valor a los puntos de acceso no visbles que es menor que uno (o más) de los valores encontrados.\nEsta es la lista de valores inferiores al asignado y la frecuencia con la que han aparecido cada uno de ellos: "+str(val_y_frec))
-        str_info = str_info + "\t\u2620Cuidado, has asignado un valor a los puntos de acceso no visbles que es menor que uno (o más) de los valores encontrados.\nEsta es la lista de valores inferiores al asignado y la frecuencia con la que han aparecido cada uno de ellos: "+str(val_y_frec) +"\n"
-    else:
-        print("Ningún valor es inferior al asignado.")
-        str_info = str_info + "Ningún valor es inferior al asignado." + "\n"
-
 # ## Escritura de los datos procesados(*)
 if(os.path.exists(date_path)!=True):
     os.mkdir(date_path)
