@@ -66,6 +66,8 @@ Como hay varias alternativas a la hora de procesar los datos, se han colocado la
 * **ordenar_listas**: Variablo booleana que indica si las listas de direcciones MACs se han de ordenar o no. En caso afirmativo se ordenarán en orden ascendente, en caso negativo se ordenarán según su orden de aparición (implica un tiempo extra).
 * **junto_X**: Variable booleana que especifica si quieres obtener las etiquetes (en caso de haberlas) en la misma matriz de salida o si las quieres en un fichero aparte.
 * **borrar_datos_nuevos**: Variable booleana que indica si quieres borrar los datos referentes a AP's solo vistos en los datos de Testeo y/o Validación o si los quieres conservar (en caso afirmativo aparecerán al final de la lista de AP's base).
+* **add_timestamp**: Variable booleana que en caso de ser activada añade información temporal a la matriz (añade el timestamp de los datos como última columna de la matriz).
+* **chack_minimun**: variable booleana que en caso de ser activada revisa el valor mínimo de las potencias encontradas (no cambia nada, solo sirve para dar información sobre los valores encontrados, pero activarlo aumenta el tiempo de ejecución del programa).
 * **inv_value**: Valor que se asignará dentro de la matriz a los puntos de acceso no vistos. Por ejemplo, si en la trayectoria 1, punto 1 no se ha visto un determinado AP, el valor que se le asignará a su potencia es el que esté aquí marcado.
 
 
@@ -108,3 +110,10 @@ En esta actualización se han corregido un par de errores y se ha implementado u
 En esta actualización se ha añadido una nueva funcionalidad al programa:
 * Se ha añadido la variable "inv_value" para hacer accesible la configuración de las potencias de los puntos de acceso no visibles.
 * Se ha añadido información acerca de los valores máximos y mínimos encontrados en las potencias, así como un aviso en caso de que exista una potencia menor que el valor asignado a "inv_value".
+
+## Actualización 15/12/2022
+En esta actualización se ha añadido una nueva funcionalidad, un cambio de calidad de vida y se ha corregido un error grave:
+* Se ha añadido la opción de añadir información temporal a la última columna de matriz (sin que salga en un archivo aparte).
+* Ahora realizar el checkeo de los valores mínimos es una funcionalidad que se puede desactivar.
+* Bug arreglado:
+    * Se ha corregido un fallo que hacia que el programa fallase a la hora de verificar el valor mínimo.
