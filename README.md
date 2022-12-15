@@ -12,7 +12,7 @@ El principal funcionamiento de este programa es convertir un fichero csv en el q
     
 En otro archivo csv en el que se organicen en función de la muestra, la potencia y la dirección MAC tal y como se muestra a continuación:
     
-    |           |     MAC 1    |     MAC 2    |     MAC 3    | ... |     MAC N    | Etiqueta 1 (opc) | Etiqueta 2 (opc)  | Timestamp (opc) |
+    |           |     MAC 1    |     MAC 2    |     MAC 3    | ... |     MAC N    | Etiqueta 1 (opc) | Etiqueta 2 (opc)  |    Timestamp (opc)    |
     | Muestra 1 | Potencia AP1 | Potencia AP2 | Potencia AP3 | ... | Potencia APN | Latitud muetra 1 | Longitud muetra 1 | Timestamp muestra 1 |
     | Muestra 2 | Potencia AP1 | Potencia AP2 | Potencia AP3 | ... | Potencia APN | Latitud muetra 2 | Longitud muetra 2 | Timestamp muestra 2 |
     | ......... | ............ | ............ | ............ | ... | ............ | ................ | ................. |
