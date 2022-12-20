@@ -37,7 +37,7 @@ junto_Test = True
 junto_Val = True
 
 #Para añadir la columna de tiempo a la matriz de salida
-add_timestamp = True
+add_timestamp = False
 
 #Definimos si queremos eliminar o conservar los datos que hagan referencia a AP's que solo se encuentren en los ficheros de validación y testeo
 borrar_datos_nuevos_Test = True
@@ -232,7 +232,8 @@ def Saca_matrices(direcciones):
     for direccion in direcciones:
         #Comprobamos que no sea un archivo de listado
         if("listado" in direccion):
-            listado = pd.read_csv(direccion, header = None).to_numpy()[1:]
+            #Si hay header en listado o sobra alguna columna se puede ajustar aquí
+            listado = pd.read_csv(direccion, header = None).to_numpy()[0:]
             listado = np.array([item for sublist in listado for item in sublist])
             print("[Importante]: Se ha encontrado una lista base")
             globals()["str_info"]=globals()["str_info"] + "[Importante]: Se ha encontrado una lista base\n"
