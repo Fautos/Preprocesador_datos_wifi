@@ -111,9 +111,10 @@ En esta actualización se ha añadido una nueva funcionalidad al programa:
 * Se ha añadido la variable "inv_value" para hacer accesible la configuración de las potencias de los puntos de acceso no visibles.
 * Se ha añadido información acerca de los valores máximos y mínimos encontrados en las potencias, así como un aviso en caso de que exista una potencia menor que el valor asignado a "inv_value".
 
-## Actualización 15/12/2022
+## Actualización 20/12/2022
 En esta actualización se ha añadido una nueva funcionalidad, un cambio de calidad de vida y se ha corregido un error grave:
 * Se ha añadido la opción de añadir información temporal a la última columna de matriz (sin que salga en un archivo aparte).
 * Ahora realizar el checkeo de los valores mínimos es una funcionalidad que se puede desactivar.
-* Bug arreglado:
+* Bugs arreglados:
     * Se ha corregido un fallo que hacia que el programa fallase a la hora de verificar el valor mínimo.
+    * Se ha corregido un fallo por el que no se leía correctamente la primera linea del listado.
