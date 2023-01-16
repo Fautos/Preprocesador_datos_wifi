@@ -529,7 +529,7 @@ def Organizador_general(matriz_scan, secuencias, identificadores=None, borrar_nu
         muestra_anterior = element[0]
 
         #Guardamos las marcas de tiempo
-        matriz_time[int(element[0])] = element[4]
+        matriz_time[fila] = element[4]
             
         #Si hay etiquetas
         if(len(element) >= 5):
