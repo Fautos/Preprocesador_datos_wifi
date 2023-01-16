@@ -79,6 +79,13 @@ Además del programa principal se implementa también un programa de testeo, con
 
 El programa mostrará en el terminal si ha habido algún fallo, en cuyo caso indicará donde se ha localizado. Notesé además que si el fallo se debe a que se han encontrado dos direcciones MAC idénticas en la misma muestra lo comunicará, así como si el fallo se debe a que no se ha localizado la dirección AP (por ejemplo si le dijimos que borrase las que no apareciesen en el entrenamiento).
 
+# Errores conocidos
+
+En este apartado se enlistan los errores conocidos que a día de hoy aún no han sido resueltos:
+
+* Se sabe que en el fichero "Procesador_base_datos", en el caso de meter muchos datos de entrada y añadir el timestamp a la matriz de salida el programa puede colapsar, cerrándose automáticamente. Se desconocen las causas de este problema, pero en caso de que suceda se recomienda minimizar el número de datos a introducir en una sola vuelta (recomendado meter listado para que no haya problema de pérdida de APs) o no activar "add_timestamp".
+
+
 # Actualizaciones
 ## Actualización 16/09/2022
 En esta actualización se han implementado varias mejoras, solucionado varios problemas y realizado cambios de calidad de vida:
@@ -118,3 +125,8 @@ En esta actualización se ha añadido una nueva funcionalidad, un cambio de cali
 * Bugs arreglados:
     * Se ha corregido un fallo que hacia que el programa fallase a la hora de verificar el valor mínimo.
     * Se ha corregido un fallo por el que no se leía correctamente la primera linea del listado.
+    
+## Actualización 16/01/2023
+Pequeña actualización para corregir errores:
+* Bug arreglado:
+    * Se ha corregido un fallo que provocaba que el timestamp en las muestras de validación y testeo no se colocase correctamente. 
